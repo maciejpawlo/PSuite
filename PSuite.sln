@@ -1,0 +1,30 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.5.002.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{235EFEC5-8224-403E-989F-FE58ECB14409}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PSuite.Bootstrapper", "src\Bootstrapper\PSuite.Bootstrapper\PSuite.Bootstrapper.csproj", "{56CB4841-0845-4EBE-9306-23D6F2C3E7A2}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{56CB4841-0845-4EBE-9306-23D6F2C3E7A2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{56CB4841-0845-4EBE-9306-23D6F2C3E7A2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{56CB4841-0845-4EBE-9306-23D6F2C3E7A2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{56CB4841-0845-4EBE-9306-23D6F2C3E7A2}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{56CB4841-0845-4EBE-9306-23D6F2C3E7A2} = {235EFEC5-8224-403E-989F-FE58ECB14409}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {6F831E50-7ABD-4019-B393-73305D380872}
+	EndGlobalSection
+EndGlobal
