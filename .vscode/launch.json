@@ -9,7 +9,7 @@
             "type": "coreclr",
             "request": "launch",
             "preLaunchTask": "build",
-            "program": "${workspaceFolder}/src/Bootstrapper/PSuite.Bootstrapper/bin/Debug/net8.0/PSuite.dll",
+            "program": "${workspaceFolder}/src/Bootstrapper/PSuite.Bootstrapper/bin/Debug/net8.0/PSuite.Bootstrapper.dll",
             "launchSettingsFilePath": "${workspaceFolder}/src/Bootstrapper/PSuite.Bootstrapper/Properties/launchSettings.json",
             "launchSettingsProfile": "https",
             "args": [],
