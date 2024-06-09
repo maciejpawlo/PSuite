@@ -5,7 +5,7 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": ".NET Core Launch (web)",
+            "name": "PSuite.Bootstrapper",
             "type": "coreclr",
             "request": "launch",
             "preLaunchTask": "build",
@@ -23,5 +23,30 @@
                 "/Views": "${workspaceFolder}/Views"
             }
         },
+        {
+            "name": "PSuite.APIGateway",
+            "type": "coreclr",
+            "request": "launch",
+            "preLaunchTask": "build",
+            "program": "${workspaceFolder}/src/APIGateway/PSuite.APIGateway/bin/Debug/net8.0/PSuite.APIGateway.dll",
+            "launchSettingsFilePath": "${workspaceFolder}/src/APIGateway/PSuite.APIGateway/Properties/launchSettings.json",
+            "launchSettingsProfile": "https",
+            "args": [],
+            "cwd": "${workspaceFolder}/src/APIGateway/PSuite.APIGateway/",
+            "stopAtEntry": false,
+            "serverReadyAction": {
+                "action": "openExternally",
+                "pattern": "\\bNow listening on:\\s+(https?://\\S+)"
+            },
+            "sourceFileMap": {
+                "/Views": "${workspaceFolder}/Views"
+            }
+        },
+    ],
+    "compounds": [
+        {
+            "name": "PSuite",
+            "configurations": ["PSuite.APIGateway", "PSuite.Bootstrapper"]
+        }
     ]
 }
