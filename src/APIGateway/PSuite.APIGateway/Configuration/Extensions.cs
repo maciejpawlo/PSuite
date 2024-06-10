@@ -66,7 +66,6 @@ public static class Extensions
             options.GetClaimsFromUserInfoEndpoint = true;
             options.Scope.Add("openid");
             options.Scope.Add("profile");
-            //options.Scope.Add("offline_access");
 
             // options.MapInboundClaims = false; // Don't rename claim types
             // options.CallbackPath = "/signin-oidc"; // Set the callback path

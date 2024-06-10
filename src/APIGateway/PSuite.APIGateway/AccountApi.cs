@@ -6,16 +6,19 @@ namespace PSuite.APIGateway;
 
 public static class AccountApi
 {
-    public static RouteGroupBuilder MapAccountApi(this RouteGroupBuilder groups)
+    public static void RegisterAccountApi(this IEndpointRouteBuilder app)
     {
-        groups.MapGet("/public", () => "Welcome to API Gateway")
+        var accountEndpoints = app.MapGroup("account")
+            .WithTags("Account")
+            .WithOpenApi()
+            .WithMetadata();
+
+        accountEndpoints.MapGet("/public", () => "Welcome to API Gateway")
             .WithName("Public");
 
-        groups.MapGet("/logout", (Delegate) HandleLogout)
+        accountEndpoints.MapGet("/logout", (Delegate) HandleLogout)
             .WithName("Logout")
             .RequireAuthorization();
-
-        return groups;
     }
     private static async Task HandleLogout(HttpContext context)
     {

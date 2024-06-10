@@ -27,10 +27,6 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapReverseProxy();
-app.MapGroup("account")
-    .MapAccountApi()
-    .WithTags("Account")
-    .WithOpenApi()
-    .WithMetadata();
+app.RegisterAccountApi();
 
 app.Run();
