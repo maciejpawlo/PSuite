@@ -13,5 +13,9 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.6" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\Shared\PSuite.Infrastructure\PSuite.Shared.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\Modules\Configuration\PSuite.Modules.Configuration.Api\PSuite.Modules.Configuration.Api.csproj" />
+  </ItemGroup>
 
 </Project>

@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.JsonWebTokens;
+using PSuite.Shared.Infrastructure.Configuration;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -21,6 +22,8 @@ builder.Services
     });
 builder.Services.AddAuthorization();
 
+builder.AddModulesConfiguration();
+//TODO: load modules assemblies
 var app = builder.Build();
 
 app.UseHttpsRedirection();
