@@ -1,6 +1,10 @@
+using System.Reflection;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.JsonWebTokens;
+using PSuite.Bootstrapper;
+using PSuite.Shared.Abstractions.Modules;
 using PSuite.Shared.Infrastructure.Configuration;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -23,15 +27,29 @@ builder.Services
 builder.Services.AddAuthorization();
 
 builder.AddModulesConfiguration();
-//TODO: load modules assemblies
+IEnumerable<Assembly> assemblies = ModuleLoader.LoadAssemblies(builder.Configuration);
+IEnumerable<IModule> modules = ModuleLoader.LoadModules(assemblies);
+
+foreach(var module in modules)
+{
+    module.Register(builder.Services);
+}
+
 var app = builder.Build();
+
+foreach(var module in modules)
+{
+    module.Use(app);
+    module.RegisterEndpoints(app);
+}
 
 app.UseHttpsRedirection();
 app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
 
-app.MapGet("/", () => "Hello World!");
+app.MapControllers();
+app.MapGet("/", () => "PSuite API!");
 app.MapGet("/test", () => "Routing works!")
     .RequireAuthorization();
 

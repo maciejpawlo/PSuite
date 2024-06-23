@@ -6,7 +6,8 @@ using System.Runtime.CompilerServices;
 namespace PSuite.Shared.Infrastructure.Configuration;
 internal static class Extensions
 {   
-    public static IHostApplicationBuilder AddModulesConfiguration(this IHostApplicationBuilder builder){
+    public static IHostApplicationBuilder AddModulesConfiguration(this IHostApplicationBuilder builder)
+    {
         var configurationFiles = Directory.GetFiles(AppDomain.CurrentDomain.BaseDirectory, "module.*.appsettings.json", SearchOption.AllDirectories);
         foreach (var file in configurationFiles)
         {

@@ -18,4 +18,8 @@
     </None>
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\PSuite.Modules.Configuration.Core\PSuite.Modules.Configuration.Core.csproj" />
+  </ItemGroup>
+
 </Project>
