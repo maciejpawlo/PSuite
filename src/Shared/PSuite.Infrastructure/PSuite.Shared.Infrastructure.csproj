@@ -14,4 +14,9 @@
     <ProjectReference Include="..\PSuite.Abstractions\PSuite.Shared.Abstractions.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.6" />
+    <PackageReference Include="Microsoft.IdentityModel.JsonWebTokens" Version="7.6.2" />
+  </ItemGroup>
+
 </Project>
