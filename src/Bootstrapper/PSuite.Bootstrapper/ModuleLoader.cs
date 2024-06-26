@@ -5,7 +5,7 @@ namespace PSuite.Bootstrapper;
 
 public static class ModuleLoader
 {
-    public static IEnumerable<Assembly> LoadAssemblies(IConfiguration configuration)
+    internal static IEnumerable<Assembly> LoadAssemblies(IConfiguration configuration)
     {
         const string moduleConfigPrefix = "PSuite.Modules.";
         //List of all referenced assemblies
@@ -54,13 +54,15 @@ public static class ModuleLoader
         return assemblies;
     }
 
-    public static IEnumerable<IModule> LoadModules(IEnumerable<Assembly> assemblies)
+    internal static IEnumerable<IModule> LoadModules(IEnumerable<Assembly> assemblies)
     {
-        var modules = assemblies.
-            Where(x => typeof(IModule).IsAssignableFrom(x.GetType()))
+        var modules = assemblies
+            .SelectMany(x => x.GetTypes())
+            .Where(x => typeof(IModule).IsAssignableFrom(x) && typeof(IModule) != x)
+            .Select(Activator.CreateInstance)
             .Cast<IModule>()
             .ToList();
-            
+
         return modules;
     }
 }
