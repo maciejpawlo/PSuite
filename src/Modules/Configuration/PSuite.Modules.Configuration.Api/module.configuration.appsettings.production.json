@@ -1,3 +1,8 @@
 {
-    
+    "configuration": {
+        "module": {
+            "name": "Configuration",
+            "enabled": true
+        }
+    }
 }
