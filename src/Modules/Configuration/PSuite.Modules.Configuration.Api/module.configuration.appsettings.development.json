@@ -2,7 +2,7 @@
     "configuration": {
         "module": {
             "name": "Configuration",
-            "enabled": false
+            "enabled": true
         }
     }
 }
