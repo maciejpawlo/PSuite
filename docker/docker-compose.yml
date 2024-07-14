@@ -6,7 +6,7 @@ services:
       - keycloak-db-data:/var/lib/postgresql/data
     environment:
       POSTGRES_DB: keycloak
-      POSTGRES_USER: admin
+      POSTGRES_USER: my_keycloak
       POSTGRES_PASSWORD: secret123
     ports:
       - "5432:5432"
@@ -21,7 +21,7 @@ services:
       KEYCLOAK_USER: admin
       KEYCLOAK_PASSWORD: admin
       KC_DB_URL: jdbc:postgresql://postgres:5432/keycloak
-      KC_DB_USERNAME: admin
+      KC_DB_USERNAME: my_keycloak
       KC_DB_PASSWORD: secret123
       KC_HEALTH_ENABLED: 'true'
       KC_METRICS_ENABLED: 'true'

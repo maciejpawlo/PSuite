@@ -50,12 +50,14 @@ internal partial class GlobalExceptionHandler(ILogger<GlobalExceptionHandler> lo
 
         static string GetTitle(Exception exception)
         {
-            return string.Join(" ", SplitCamelCase().Split(exception.GetType().Name));
+            var exceptionName = exception.GetType().Name.Replace("exception", string.Empty, StringComparison.InvariantCultureIgnoreCase);
+            return string.Join(" ", SplitCamelCase().Split(exceptionName));
         }
 
         static string GetErrorCode(Exception exception)
-        {
-            return string.Join("_", SplitCamelCase().Split(exception.GetType().Name)).ToLowerInvariant();
+        {           
+            var exceptionName = exception.GetType().Name.Replace("exception", string.Empty, StringComparison.InvariantCultureIgnoreCase);
+            return string.Join("_", SplitCamelCase().Split(exceptionName)).ToLowerInvariant();
         }
     }
 
