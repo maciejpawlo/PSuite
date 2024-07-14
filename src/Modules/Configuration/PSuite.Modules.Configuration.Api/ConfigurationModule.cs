@@ -21,5 +21,6 @@ public class ConfigurationModule : IModule
   
     public void RegisterEndpoints(IEndpointRouteBuilder endpointRouteBuilder)
     {
+        endpointRouteBuilder.MapGet(BasePath, () => $"{Name} API");
     }
 }
