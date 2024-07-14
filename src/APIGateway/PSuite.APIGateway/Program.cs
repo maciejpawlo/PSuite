@@ -13,8 +13,6 @@ builder.Services.AddOAuthProxy();
 builder.Services.AddAuthorizationPolicies();
 builder.Services.AddCache(builder.Configuration);
 
-builder.Services.AddEndpointsApiExplorer();
-
 var app = builder.Build();
 
 if (app.Environment.IsDevelopment())
