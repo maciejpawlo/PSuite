@@ -2,6 +2,11 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\..\Shared\PSuite.Abstractions\PSuite.Shared.Abstractions.csproj" />
+    <ProjectReference Include="..\..\..\Shared\PSuite.Infrastructure\PSuite.Shared.Infrastructure.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="DAL/Repositories/" />
   </ItemGroup>
 
   <PropertyGroup>
