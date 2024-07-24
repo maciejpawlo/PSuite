@@ -7,6 +7,7 @@ using PSuite.Shared.Abstractions.Modules;
 using PSuite.Shared.Infrastructure.Authentication;
 using PSuite.Shared.Infrastructure.Exceptions;
 using PSuite.Shared.Infrastructure.Modules;
+using Microsoft.OpenApi.Models;
 
 [assembly: InternalsVisibleTo("PSuite.Bootstrapper")]
 namespace PSuite.Shared.Infrastructure;
@@ -15,6 +16,16 @@ internal static class Extensions
     internal static IServiceCollection AddInfrastructure(this IServiceCollection services, 
         IEnumerable<IModule> modules, IEnumerable<Assembly> assemblies, IConfiguration configuration)
     {
+        services.AddEndpointsApiExplorer();
+        services.AddSwaggerGen(swagger =>
+            {
+                swagger.CustomSchemaIds(x => x.FullName);
+                swagger.SwaggerDoc("v1", new OpenApiInfo
+                {
+                    Title = "PSuite API",
+                    Version = "v1"
+                });
+            });
         services.AddModuleInfo(modules);
         var authOptions = configuration.GetSection(AuthOptions.SectionName).Get<AuthOptions>();
         services.AddAuth(authOptions);
@@ -24,6 +35,8 @@ internal static class Extensions
 
     internal static void UseInfrastructure(this IApplicationBuilder app)
     {
+        app.UseSwagger();
+        app.UseSwaggerUI();
         app.UseExceptions();
     }
 }
