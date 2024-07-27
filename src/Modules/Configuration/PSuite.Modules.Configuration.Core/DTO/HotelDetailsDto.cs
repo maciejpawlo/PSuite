@@ -1,3 +1,3 @@
 ﻿namespace PSuite.Modules.Configuration.Core.DTO;
 
-internal record HotelDetailsDto(Guid Id, string? Name, IList<RoomDto>? Rooms, IList<EmployeeDto>? Employees);
+internal record HotelDetailsDto(Guid Id, string? Name, IEnumerable<RoomDto> Rooms, IEnumerable<EmployeeDto> Employees);

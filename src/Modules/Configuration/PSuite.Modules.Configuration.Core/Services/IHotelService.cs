@@ -7,6 +7,6 @@ internal interface IHotelService
     Task CreateAsync(HotelDto hotel);
     Task DeleteAsync(Guid id);
     Task UpdateAsync(HotelDto hotel);
-    Task<IEnumerable<HotelDetailsDto>> GetAllAsync();
+    Task<IEnumerable<HotelDto>> GetAllAsync();
     Task<HotelDetailsDto> GetByIdAsync(Guid id);
 }

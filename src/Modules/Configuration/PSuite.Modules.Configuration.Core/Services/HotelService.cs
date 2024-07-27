@@ -1,31 +1,52 @@
 ﻿using PSuite.Modules.Configuration.Core.DTO;
+using PSuite.Modules.Configuration.Core.Entities;
+using PSuite.Modules.Configuration.Core.Exceptions;
+using PSuite.Modules.Configuration.Core.Mappers;
+using PSuite.Modules.Configuration.Core.Repositories;
 
 namespace PSuite.Modules.Configuration.Core.Services;
 
-internal class HotelService : IHotelService
+internal class HotelService(IHotelRepository hotelRepository) : IHotelService
 {
-    public Task CreateAsync(HotelDto hotel)
+    private readonly IHotelRepository hotelRepository = hotelRepository;
+
+    public async Task CreateAsync(HotelDto dto)
     {
-        throw new NotImplementedException();
+        var hotel = new Hotel
+        {
+            Id = dto.Id,
+            Name = dto.Name,
+        };
+        await hotelRepository.CreateAsync(hotel);
     }
 
-    public Task DeleteAsync(Guid id)
+    public async Task DeleteAsync(Guid id)
     {
-        throw new NotImplementedException();
+        var hotel = await hotelRepository.GetByIdAsync(id) ?? throw new HotelNotFoundException(id);
+        if (hotel.Rooms.Any() || hotel.Employees.Any())
+        {
+            throw new CannotDeleteHotelException(hotel.Id);
+        }
+        await hotelRepository.DeleteAsync(hotel);
     }
 
-    public Task<IEnumerable<HotelDetailsDto>> GetAllAsync()
+    public async Task<IEnumerable<HotelDto>> GetAllAsync()
     {
-        throw new NotImplementedException();
+        var hotel = await hotelRepository.GetAllAsync();
+        return hotel.Select(x => new HotelDto(x.Id, x.Name)).ToList();
     }
 
-    public Task<HotelDetailsDto> GetByIdAsync(Guid id)
+    public async Task<HotelDetailsDto> GetByIdAsync(Guid id)
     {
-        throw new NotImplementedException();
+        var hotel = await hotelRepository.GetByIdAsync(id) ?? throw new HotelNotFoundException(id);
+        return new HotelDetailsDto(hotel.Id, hotel.Name, 
+            hotel.Rooms.Select(x => x.ToDto()).ToArray(), hotel.Employees.Select(x => x.ToDto()).ToArray());
     }
 
-    public Task UpdateAsync(HotelDto hotel)
+    public async Task UpdateAsync(HotelDto dto)
     {
-        throw new NotImplementedException();
+        var hotel = await hotelRepository.GetByIdAsync(dto.Id) ?? throw new HotelNotFoundException(dto.Id);
+        hotel.Name = dto.Name;
+        await hotelRepository.UpdateAsync(hotel);
     }
 }

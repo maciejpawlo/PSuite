@@ -8,5 +8,5 @@ internal interface IRoomRepository
     Task DeleteAsync(Room room);
     Task UpdateAsync(Room room);
     Task<IEnumerable<Room>> GetAllAsync();
-    Task<Room> GetByIdAsync(Guid id);
+    Task<Room?> GetByIdAsync(Guid id);
 }

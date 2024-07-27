@@ -8,5 +8,5 @@ internal interface IHotelRepository
     Task DeleteAsync(Hotel hotel);
     Task UpdateAsync(Hotel hotel);
     Task<IEnumerable<Hotel>> GetAllAsync();
-    Task<Hotel> GetByIdAsync(Guid id);
+    Task<Hotel?> GetByIdAsync(Guid id);
 }

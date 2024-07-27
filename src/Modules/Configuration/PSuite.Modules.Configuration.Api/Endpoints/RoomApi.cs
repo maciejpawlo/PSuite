@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
 using PSuite.Modules.Configuration.Core.DTO;
 using PSuite.Modules.Configuration.Core.Services;
@@ -26,6 +25,14 @@ internal static class RoomApi
 
         roomEndpoints.MapDelete("/{id:guid}", (IRoomService roomService, Guid id) => roomService.DeleteAsync(id))
             .WithName("Delete room")
+            .RequireAuthorization();
+
+        roomEndpoints.MapGet("", (IRoomService roomService) => roomService.GetAllAsync())
+            .WithName("Get all rooms")
+            .RequireAuthorization();
+
+        roomEndpoints.MapGet("/{id:guid}", (IRoomService roomService, Guid id) => roomService.GetByIdAsync(id))
+            .WithName("Get room by id")
             .RequireAuthorization();
     }
 }

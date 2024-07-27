@@ -1,31 +1,55 @@
 ﻿using PSuite.Modules.Configuration.Core.DTO;
+using PSuite.Modules.Configuration.Core.Entities;
+using PSuite.Modules.Configuration.Core.Exceptions;
+using PSuite.Modules.Configuration.Core.Mappers;
+using PSuite.Modules.Configuration.Core.Repositories;
 
 namespace PSuite.Modules.Configuration.Core.Services;
 
-internal sealed class RoomService : IRoomService
+internal sealed class RoomService(IRoomRepository roomRepository, IHotelRepository hotelRepository) : IRoomService
 {
-    public Task CreateAsync(RoomDto room)
+    private readonly IRoomRepository roomRepository = roomRepository;
+    private readonly IHotelRepository hotelRepository = hotelRepository;
+
+    public async Task CreateAsync(RoomDto dto)
     {
-        throw new NotImplementedException();
+        var hotel = await hotelRepository.GetByIdAsync(dto.HotelId) ?? throw new HotelNotFoundException(dto.HotelId);
+        var room = new Room
+        {
+            Id = Guid.NewGuid(),
+            Capacity = dto.Capacity,
+            Hotel = hotel,
+            Number = dto.Number
+        };
+
+        await roomRepository.CreateAsync(room);
     }
 
-    public Task DeleteAsync(Guid id)
+    public async Task DeleteAsync(Guid id)
     {
-        throw new NotImplementedException();
+        var room = await roomRepository.GetByIdAsync(id) ?? throw new HotelNotFoundException(id);
+        await roomRepository.DeleteAsync(room);
     }
 
-    public Task<IEnumerable<RoomDto>> GetAllAsync()
+    public async Task<IEnumerable<RoomDto>> GetAllAsync()
     {
-        throw new NotImplementedException();
+        var rooms = await roomRepository.GetAllAsync();
+        return rooms
+            .Select(x => x.ToDto())
+            .ToArray();
     }
 
-    public Task<RoomDto> GetByIdAsync(Guid id)
+    public async Task<RoomDto> GetByIdAsync(Guid id)
     {
-        throw new NotImplementedException();
+        var room = await roomRepository.GetByIdAsync(id) ?? throw new RoomNotFoundException(id);
+        return room.ToDto();
     }
 
-    public Task UpdateAsync(RoomDto room)
+    public async Task UpdateAsync(RoomDto dto)
     {
-        throw new NotImplementedException();
+        var room = await roomRepository.GetByIdAsync(dto.Id) ?? throw new RoomNotFoundException(dto.Id);
+        room.Number = dto.Number;
+        room.Capacity = dto.Capacity;        
+        await roomRepository.UpdateAsync(room);
     }
 }

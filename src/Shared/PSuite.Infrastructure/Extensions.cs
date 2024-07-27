@@ -14,7 +14,7 @@ namespace PSuite.Shared.Infrastructure;
 internal static class Extensions
 {
     internal static IServiceCollection AddInfrastructure(this IServiceCollection services, 
-        IEnumerable<IModule> modules, IEnumerable<Assembly> assemblies, IConfiguration configuration)
+        IEnumerable<IModule> modules, IEnumerable<Assembly> assemblies)
     {
         services.AddEndpointsApiExplorer();
         services.AddSwaggerGen(swagger =>
@@ -27,7 +27,7 @@ internal static class Extensions
                 });
             });
         services.AddModuleInfo(modules);
-        var authOptions = configuration.GetSection(AuthOptions.SectionName).Get<AuthOptions>();
+        var authOptions = services.GetOptions<AuthOptions>(AuthOptions.SectionName);
         services.AddAuth(authOptions);
         services.AddExceptions();
         return services;
@@ -38,5 +38,12 @@ internal static class Extensions
         app.UseSwagger();
         app.UseSwaggerUI();
         app.UseExceptions();
+    }
+
+    public static T GetOptions<T>(this IServiceCollection services, string sectionName) where T : new()
+    {
+        using var serviceProvider = services.BuildServiceProvider();
+        var configuration = serviceProvider.GetRequiredService<IConfiguration>();
+        return configuration.GetSection(sectionName).Get<T>() ?? new();
     }
 }

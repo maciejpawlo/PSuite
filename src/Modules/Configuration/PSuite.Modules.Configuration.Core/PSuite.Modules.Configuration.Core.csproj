@@ -6,7 +6,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="DAL/Repositories/" />
+    <Folder Include="DAL/Migrations/" />
   </ItemGroup>
 
   <PropertyGroup>
