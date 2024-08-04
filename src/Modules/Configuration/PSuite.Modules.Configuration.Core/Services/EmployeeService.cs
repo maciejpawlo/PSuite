@@ -1,12 +1,47 @@
 ﻿using PSuite.Modules.Configuration.Core.DTO;
+using PSuite.Modules.Configuration.Core.Entities;
+using PSuite.Modules.Configuration.Core.Exceptions;
+using PSuite.Modules.Configuration.Core.Keycloak;
+using PSuite.Modules.Configuration.Core.Keycloak.Requests;
+using PSuite.Modules.Configuration.Core.Repositories;
 
 namespace PSuite.Modules.Configuration.Core.Services;
 
-internal class EmployeeService : IEmployeeService
+internal class EmployeeService(IEmployeeRepository employeeRepository, 
+    IKeycloakService keycloakService,
+    IHotelRepository hotelRepository
+) : IEmployeeService
 {
-    public Task CreateAsync(EmployeeDto employee)
+    private readonly IEmployeeRepository employeeRepository = employeeRepository;
+    private readonly IKeycloakService keycloakService = keycloakService;
+    private readonly IHotelRepository hotelRepository = hotelRepository;
+
+    public async Task CreateAsync(EmployeeDto dto)
     {
-        throw new NotImplementedException();
+        var hotel = dto.HotelId is not null ?
+            await hotelRepository.GetByIdAsync(dto.HotelId!.Value) ?? throw new HotelNotFoundException(dto.HotelId!.Value)
+            : 
+            null;
+
+        var keycloakUser = new KeycloakUser(Guid.NewGuid(), dto.FirstName, dto.LastName, string.Empty, true, false);
+        var employee = new Employee 
+        {
+            FirstName = dto.FirstName,
+            LastName = dto.LastName,
+            Hotel = hotel,
+            UserId = keycloakUser.Id
+        };
+
+        try
+        {
+            await keycloakService.CreateUser(keycloakUser);
+        }
+        catch (HttpRequestException)
+        {
+            //TODO: throw new error related to user creation failure
+        }
+
+        await employeeRepository.CreateAsync(employee);
     }
 
     public Task DeleteAsync(Guid id)

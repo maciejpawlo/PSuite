@@ -19,7 +19,8 @@ internal static class Extensions
         foreach (var file in environmentConfigurationFiles)
         {
             builder.Configuration.AddJsonFile(file);
-        }
+        }                
+        builder.Configuration.AddEnvironmentVariables();
         return builder;
     }    
 }

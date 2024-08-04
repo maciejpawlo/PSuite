@@ -6,6 +6,11 @@
         },
         "postgres": {
             "connectionstring": "Server=localhost; Port=5432; User Id=psuite; Password=secret123; Database=psuite"
+        },
+        "keycloak": { 
+            "clientSecret": "",
+            "url": "",
+            "realm": "PSuite"
         }
     }
 }
