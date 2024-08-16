@@ -21,11 +21,10 @@ internal class HotelRepository(ConfigurationDbContext dbContext) : IHotelReposit
     }
 
     public async Task<IEnumerable<Hotel>> GetAllAsync()
-        => await dbContext.Hotels.ToListAsync();
+        => await dbContext.Hotels.AsNoTracking().ToListAsync();
 
     public Task<Hotel?> GetByIdAsync(Guid id)
         => dbContext.Hotels
-            .AsNoTracking()
             .Include(x => x.Employees)
             .Include(x => x.Rooms)
             .FirstOrDefaultAsync(x => x.Id == id);

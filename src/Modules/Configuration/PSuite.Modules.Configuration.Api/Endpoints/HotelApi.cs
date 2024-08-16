@@ -9,7 +9,7 @@ internal static class HotelApi
 {
     internal static void RegisterHotelApi(this IEndpointRouteBuilder app, string basePath)
     {
-        var hotelEndpoints = app.MapGroup($"{basePath}/hotel")
+        var hotelEndpoints = app.MapGroup($"{basePath}/hotels")
             .WithTags("Hotel")
             .WithOpenApi()
             .WithMetadata();

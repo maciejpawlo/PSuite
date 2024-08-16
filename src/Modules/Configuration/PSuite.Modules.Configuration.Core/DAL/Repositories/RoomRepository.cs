@@ -28,7 +28,6 @@ internal class RoomRepository(ConfigurationDbContext dbContext) : IRoomRepositor
 
     public Task<Room?> GetByIdAsync(Guid id)
         => dbContext.Rooms
-            .AsNoTracking()
             .Include(x => x.Hotel)
             .FirstOrDefaultAsync(x => x.Id == id);
 

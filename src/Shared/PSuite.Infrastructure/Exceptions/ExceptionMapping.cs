@@ -10,6 +10,7 @@ internal static class ExceptionMapping
             ExceptionCategory.AlreadyExists => StatusCodes.Status409Conflict,
             ExceptionCategory.NotFound => StatusCodes.Status404NotFound,
             ExceptionCategory.ValidationError => StatusCodes.Status422UnprocessableEntity,
+            ExceptionCategory.ExternalServiceIntegration => StatusCodes.Status503ServiceUnavailable,
             _ => StatusCodes.Status500InternalServerError
         };
 }

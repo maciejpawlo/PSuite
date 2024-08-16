@@ -3,6 +3,7 @@ using PSuite.Modules.Configuration.Core.Entities;
 using PSuite.Modules.Configuration.Core.Exceptions;
 using PSuite.Modules.Configuration.Core.Keycloak;
 using PSuite.Modules.Configuration.Core.Keycloak.Requests;
+using PSuite.Modules.Configuration.Core.Mappers;
 using PSuite.Modules.Configuration.Core.Repositories;
 
 namespace PSuite.Modules.Configuration.Core.Services;
@@ -19,48 +20,80 @@ internal class EmployeeService(IEmployeeRepository employeeRepository,
     public async Task CreateAsync(EmployeeDto dto)
     {
         var hotel = dto.HotelId is not null ?
-            await hotelRepository.GetByIdAsync(dto.HotelId!.Value) ?? throw new HotelNotFoundException(dto.HotelId!.Value)
-            : 
-            null;
+        await hotelRepository.GetByIdAsync(dto.HotelId!.Value) ?? throw new HotelNotFoundException(dto.HotelId!.Value)
+        : 
+        null;
 
-        var keycloakUser = new KeycloakUser(Guid.NewGuid(), dto.FirstName, dto.LastName, string.Empty, true, false);
+        var keycloakUser = new KeycloakUser(Guid.NewGuid(), dto.FirstName, dto.LastName, $"{dto.FirstName}_{dto.LastName}", string.Empty, true, false);
         var employee = new Employee 
         {
             FirstName = dto.FirstName,
             LastName = dto.LastName,
             Hotel = hotel,
-            UserId = keycloakUser.Id
+            UserId = keycloakUser.Id,
         };
 
+        await employeeRepository.CreateAsync(employee);
         try
         {
             await keycloakService.CreateUser(keycloakUser);
         }
-        catch (HttpRequestException)
+        catch (Exception ex)
         {
-            //TODO: throw new error related to user creation failure
+            await employeeRepository.DeleteAsync(employee);
+            throw new KeycloakIntegrationException(ex);
         }
-
-        await employeeRepository.CreateAsync(employee);
     }
 
-    public Task DeleteAsync(Guid id)
+    public async Task DeleteAsync(Guid id)
     {
-        throw new NotImplementedException();
+        var employee = await employeeRepository.GetByIdAsync(id) ?? throw new EmployeeNotFoundException(id);
+        
+        await employeeRepository.DeleteAsync(employee);
+        try
+        {   
+            await keycloakService.DeleteUser(id);     
+        }
+        catch (Exception ex)
+        {
+            await employeeRepository.CreateAsync(employee);
+            throw new KeycloakIntegrationException(ex);
+        }
     }
 
-    public Task<IEnumerable<EmployeeDto>> GetAllAsync()
+    public async Task<IEnumerable<EmployeeDto>> GetAllAsync()
     {
-        throw new NotImplementedException();
+        var employees =  await employeeRepository.GetAllAsync();
+        return employees.Select(x => x.ToDto()).ToList();
     }
 
-    public Task<EmployeeDto> GetByIdAsync(Guid id)
+    public async Task<EmployeeDto> GetByIdAsync(Guid id)
     {
-        throw new NotImplementedException();
+        var employee = await employeeRepository.GetByIdAsync(id) ?? throw new EmployeeNotFoundException(id);
+        return employee.ToDto();
     }
 
-    public Task UpdateAsync(EmployeeDto employee)
+    public async Task UpdateAsync(EmployeeDto dto)
     {
-        throw new NotImplementedException();
+        var employee = await employeeRepository.GetByIdAsync(dto.Id) ?? throw new EmployeeNotFoundException(dto.Id);
+        employee.FirstName = dto.FirstName;
+        employee.LastName = dto.LastName;
+        var hotel = dto.HotelId is not null ?
+            await hotelRepository.GetByIdAsync(dto.HotelId!.Value) ?? throw new HotelNotFoundException(dto.HotelId!.Value)
+            : 
+            null;
+        employee.Hotel = hotel;
+        var keycloakUser = new KeycloakUser(Guid.NewGuid(), dto.FirstName, dto.LastName, $"{dto.FirstName}_{dto.LastName}", string.Empty, true, false);
+
+        await employeeRepository.UpdateAsync(employee);
+        try
+        {
+            await keycloakService.UpdateUser(keycloakUser);
+        }
+        catch (Exception ex)
+        {
+            await employeeRepository.CreateAsync(employee);
+            throw new KeycloakIntegrationException(ex);
+        }
     }
 }

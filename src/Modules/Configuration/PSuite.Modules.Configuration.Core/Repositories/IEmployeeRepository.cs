@@ -8,5 +8,5 @@ internal interface IEmployeeRepository
     Task DeleteAsync(Employee employee);
     Task UpdateAsync(Employee employee);
     Task<IEnumerable<Employee>> GetAllAsync();
-    Task<Employee> GetByIdAsync(Guid id);
+    Task<Employee?> GetByIdAsync(Guid id);
 }

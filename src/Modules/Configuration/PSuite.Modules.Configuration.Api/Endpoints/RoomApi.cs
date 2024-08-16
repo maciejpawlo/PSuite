@@ -10,7 +10,7 @@ internal static class RoomApi
 {
     internal static void RegisterRoomApi(this IEndpointRouteBuilder app, string basePath)
     {
-        var roomEndpoints = app.MapGroup($"{basePath}/room")
+        var roomEndpoints = app.MapGroup($"{basePath}/rooms")
             .WithTags("Room")
             .WithOpenApi()
             .WithMetadata();

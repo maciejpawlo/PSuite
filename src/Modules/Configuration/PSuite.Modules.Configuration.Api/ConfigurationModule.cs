@@ -26,5 +26,6 @@ public class ConfigurationModule : IModule
         endpointRouteBuilder.MapGet(BasePath, () => $"{Name} API");
         endpointRouteBuilder.RegisterHotelApi(BasePath);
         endpointRouteBuilder.RegisterRoomApi(BasePath);
+        endpointRouteBuilder.RegisterEmployeeApi(BasePath);
     }
 }
