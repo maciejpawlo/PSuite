@@ -2,9 +2,7 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using PSuite.Modules.Configuration.Core.DAL;
-using PSuite.Modules.Configuration.Core.DAL.Repositories;
 using PSuite.Modules.Configuration.Core.Keycloak;
-using PSuite.Modules.Configuration.Core.Repositories;
 using PSuite.Modules.Configuration.Core.Services;
 using PSuite.Shared.Infrastructure.Database;
 using Microsoft.Extensions.Options;
@@ -28,9 +26,6 @@ internal static class Extensions
         .AddHttpMessageHandler<KeycloakAuthMessageHandler>();
 
         services.AddPostgres<ConfigurationDbContext>();
-        services.AddScoped<IHotelRepository, HotelRepository>();
-        services.AddScoped<IRoomRepository, RoomRepository>();
-        services.AddScoped<IEmployeeRepository, EmployeeRepository>();
         services.AddScoped<IHotelService, HotelService>();
         services.AddScoped<IRoomService, RoomService>();
         services.AddScoped<IEmployeeService, EmployeeService>();

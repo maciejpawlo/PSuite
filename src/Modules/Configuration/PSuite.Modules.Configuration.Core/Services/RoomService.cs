@@ -1,19 +1,19 @@
-﻿using PSuite.Modules.Configuration.Core.DTO;
+﻿using Microsoft.EntityFrameworkCore;
+using PSuite.Modules.Configuration.Core.DAL;
+using PSuite.Modules.Configuration.Core.DTO;
 using PSuite.Modules.Configuration.Core.Entities;
 using PSuite.Modules.Configuration.Core.Exceptions;
 using PSuite.Modules.Configuration.Core.Mappers;
-using PSuite.Modules.Configuration.Core.Repositories;
 
 namespace PSuite.Modules.Configuration.Core.Services;
 
-internal sealed class RoomService(IRoomRepository roomRepository, IHotelRepository hotelRepository) : IRoomService
+internal sealed class RoomService(ConfigurationDbContext dbContext) : IRoomService
 {
-    private readonly IRoomRepository roomRepository = roomRepository;
-    private readonly IHotelRepository hotelRepository = hotelRepository;
+    private readonly ConfigurationDbContext dbContext = dbContext;
 
     public async Task CreateAsync(RoomDto dto)
     {
-        var hotel = await hotelRepository.GetByIdAsync(dto.HotelId) ?? throw new HotelNotFoundException(dto.HotelId);
+        var hotel = await dbContext.Hotels.FirstOrDefaultAsync(x => x.Id == dto.HotelId) ?? throw new HotelNotFoundException(dto.HotelId);
         var room = new Room
         {
             Id = Guid.NewGuid(),
@@ -22,34 +22,36 @@ internal sealed class RoomService(IRoomRepository roomRepository, IHotelReposito
             Number = dto.Number
         };
 
-        await roomRepository.CreateAsync(room);
+        await dbContext.Rooms.AddAsync(room);
+        await dbContext.SaveChangesAsync();
     }
 
     public async Task DeleteAsync(Guid id)
     {
-        var room = await roomRepository.GetByIdAsync(id) ?? throw new HotelNotFoundException(id);
-        await roomRepository.DeleteAsync(room);
+        var room = await dbContext.Rooms.FirstOrDefaultAsync(x => x.Id == id) ?? throw new RoomNotFoundException(id);
+        dbContext.Rooms.Remove(room);
+        await dbContext.SaveChangesAsync();
     }
 
     public async Task<IEnumerable<RoomDto>> GetAllAsync()
     {
-        var rooms = await roomRepository.GetAllAsync();
-        return rooms
+        return await dbContext.Rooms
+            .AsNoTracking()
             .Select(x => x.ToDto())
-            .ToArray();
+            .ToListAsync();
     }
 
     public async Task<RoomDto> GetByIdAsync(Guid id)
     {
-        var room = await roomRepository.GetByIdAsync(id) ?? throw new RoomNotFoundException(id);
+        var room =  await dbContext.Rooms.FirstOrDefaultAsync(x => x.Id == id) ?? throw new RoomNotFoundException(id);
         return room.ToDto();
     }
 
     public async Task UpdateAsync(RoomDto dto)
     {
-        var room = await roomRepository.GetByIdAsync(dto.Id) ?? throw new RoomNotFoundException(dto.Id);
+        var room = await dbContext.Rooms.FirstOrDefaultAsync(x => x.Id == dto.Id) ?? throw new RoomNotFoundException(dto.Id);
         room.Number = dto.Number;
         room.Capacity = dto.Capacity;        
-        await roomRepository.UpdateAsync(room);
+        await dbContext.SaveChangesAsync();
     }
 }
