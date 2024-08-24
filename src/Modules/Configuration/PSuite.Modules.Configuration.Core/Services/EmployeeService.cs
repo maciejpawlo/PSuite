@@ -23,19 +23,19 @@ internal class EmployeeService(ConfigurationDbContext dbContext,
         : 
         null;
 
-        var keycloakUser = new KeycloakUser(Guid.NewGuid(), dto.FirstName, dto.LastName, $"{dto.FirstName}_{dto.LastName}", string.Empty, true, false);
+        var keycloakUser = new KeycloakUser(Guid.Empty, dto.FirstName, dto.LastName, $"{dto.FirstName}_{dto.LastName}", string.Empty, true, false);
         var employee = new Employee 
         {
             FirstName = dto.FirstName,
             LastName = dto.LastName,
-            Hotel = hotel,
-            UserId = keycloakUser.Id,
+            Hotel = hotel
         };
 
         await dbContext.Employees.AddAsync(employee);
         try
         {
-            await keycloakService.CreateUser(keycloakUser);
+            Guid externalUserId = await keycloakService.CreateUser(keycloakUser);
+            employee.UserId = externalUserId;
         }
         catch (Exception ex)
         {
@@ -51,7 +51,7 @@ internal class EmployeeService(ConfigurationDbContext dbContext,
         dbContext.Employees.Remove(employee);
         try
         {   
-            await keycloakService.DeleteUser(id);     
+            await keycloakService.DeleteUser(employee.UserId);     
         }
         catch (Exception ex)
         {
@@ -62,14 +62,18 @@ internal class EmployeeService(ConfigurationDbContext dbContext,
 
     public async Task<IEnumerable<EmployeeDto>> GetAllAsync()
     {
-        var employees = dbContext.Employees.AsNoTracking();
+        var employees = dbContext.Employees
+            .AsNoTracking()
+            .Include(x => x.Hotel);
         return await employees.Select(x => x.ToDto()).ToListAsync();
     }
 
     public async Task<EmployeeDto> GetByIdAsync(Guid id)
     {
-        var employee = await dbContext.Employees.AsNoTracking().FirstOrDefaultAsync(x => x.Id == id) 
-            ?? throw new EmployeeNotFoundException(id);
+        var employee = await dbContext.Employees
+            .AsNoTracking()
+            .Include(x => x.Hotel)
+            .FirstOrDefaultAsync(x => x.Id == id) ?? throw new EmployeeNotFoundException(id);
         return employee.ToDto();
     }
 
@@ -84,8 +88,7 @@ internal class EmployeeService(ConfigurationDbContext dbContext,
             : 
             null;
         employee.Hotel = hotel;
-        var keycloakUser = new KeycloakUser(Guid.NewGuid(), dto.FirstName, dto.LastName, $"{dto.FirstName}_{dto.LastName}", string.Empty, true, false);
-
+        var keycloakUser = new KeycloakUser(employee.UserId, dto.FirstName, dto.LastName, $"{dto.FirstName}_{dto.LastName}", string.Empty, true, false);
         try
         {
             await keycloakService.UpdateUser(keycloakUser);

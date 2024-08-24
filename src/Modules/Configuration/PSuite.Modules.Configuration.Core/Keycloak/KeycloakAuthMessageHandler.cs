@@ -23,7 +23,7 @@ internal class KeycloakAuthMessageHandler(IOptions<KeycloakOptions> keycloakOpti
     protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
     {
         var accessToken = await GetAccessToken(cancellationToken);
-        request.Headers.Add("Authorization", $"Bearer {accessToken}");
+        request.Headers.Add(HeaderNames.Authorization, $"Bearer {accessToken}");
         return await base.SendAsync(request, cancellationToken);
     }
 
