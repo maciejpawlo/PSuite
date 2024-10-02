@@ -13,26 +13,23 @@ internal static class RoomApi
         var roomEndpoints = app.MapGroup($"{basePath}/rooms")
             .WithTags("Room")
             .WithOpenApi()
-            .WithMetadata();
+            .WithMetadata()           
+            .RequireAuthorization();
 
         roomEndpoints.MapPost("", (IRoomService roomService, RoomDto request) => roomService.CreateAsync(request))
             .WithName("Create room")
             .RequireAuthorization();
         
         roomEndpoints.MapPut("/{id:guid}", (IRoomService roomService, RoomDto request, Guid id) => roomService.UpdateAsync(request))
-            .WithName("Update room")
-            .RequireAuthorization();
+            .WithName("Update room");
 
         roomEndpoints.MapDelete("/{id:guid}", (IRoomService roomService, Guid id) => roomService.DeleteAsync(id))
-            .WithName("Delete room")
-            .RequireAuthorization();
+            .WithName("Delete room");
 
         roomEndpoints.MapGet("", (IRoomService roomService) => roomService.GetAllAsync())
-            .WithName("Get all rooms")
-            .RequireAuthorization();
+            .WithName("Get all rooms");
 
         roomEndpoints.MapGet("/{id:guid}", (IRoomService roomService, Guid id) => roomService.GetByIdAsync(id))
-            .WithName("Get room by id")
-            .RequireAuthorization();
+            .WithName("Get room by id");
     }
 }

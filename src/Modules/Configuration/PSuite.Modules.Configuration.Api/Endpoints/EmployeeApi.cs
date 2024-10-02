@@ -19,7 +19,7 @@ internal static class EmployeeApi
         employeeEndpoints.MapPost("", (IEmployeeService employeeService, EmployeeDto request) => employeeService.CreateAsync(request))
             .WithName("Create employee");
         
-        employeeEndpoints.MapPut("/{id:guid}", (IEmployeeService employeeService, EmployeeDto request, Guid id) => employeeService.UpdateAsync(request))
+        employeeEndpoints.MapPut("/{id:guid}", (IEmployeeService employeeService, Guid id, EmployeeDto request) => employeeService.UpdateAsync(request))
             .WithName("Update employee");
 
         employeeEndpoints.MapDelete("/{id:guid}", (IEmployeeService employeeService, Guid id) => employeeService.DeleteAsync(id))

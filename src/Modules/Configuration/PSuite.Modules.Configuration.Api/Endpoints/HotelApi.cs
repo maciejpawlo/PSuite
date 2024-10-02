@@ -12,26 +12,21 @@ internal static class HotelApi
         var hotelEndpoints = app.MapGroup($"{basePath}/hotels")
             .WithTags("Hotel")
             .WithOpenApi()
-            .WithMetadata();
+            .WithMetadata()
+            .RequireAuthorization();
 
         hotelEndpoints.MapPost("", (IHotelService hotelService, HotelDto request) => hotelService.CreateAsync(request))
-            .WithName("Create hotel")
-            .RequireAuthorization();
+            .WithName("Create hotel");
         
         hotelEndpoints.MapPut("/{id:guid}", (IHotelService hotelService, HotelDto request, Guid id) => hotelService.UpdateAsync(request))
-            .WithName("Update hotel")
-            .RequireAuthorization();
+            .WithName("Update hotel");
 
         hotelEndpoints.MapDelete("/{id:guid}", (IHotelService hotelService, Guid id) => hotelService.DeleteAsync(id))
-            .WithName("Delete hotel")
-            .RequireAuthorization();
-
+            .WithName("Delete hotel");
         hotelEndpoints.MapGet("", (IHotelService hotelService) => hotelService.GetAllAsync())
-            .WithName("Get all hotels")
-            .RequireAuthorization();
+            .WithName("Get all hotels");
 
         hotelEndpoints.MapGet("/{id:guid}", (IHotelService hotelService, Guid id) => hotelService.GetByIdAsync(id))
-            .WithName("Get hotel by id")
-            .RequireAuthorization();
+            .WithName("Get hotel by id");
     }
 }
