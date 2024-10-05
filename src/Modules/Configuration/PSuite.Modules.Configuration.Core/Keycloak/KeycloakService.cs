@@ -31,4 +31,10 @@ internal class KeycloakService(HttpClient httpClient, IOptions<KeycloakOptions> 
         var result = await httpClient.PutAsJsonAsync($"admin/realms/{keycloakOptions.Realm}/users/{keycloakUser.Id}", keycloakUser);
         result.EnsureSuccessStatusCode();
     }
+
+    public async Task SendExecuteActionsEmail(Guid userId, params string[] actions)
+    {
+        var result = await httpClient.PutAsJsonAsync($"admin/realms/{keycloakOptions.Realm}/users/{userId}/execute-actions-email", actions);
+        result.EnsureSuccessStatusCode();
+    }
 }

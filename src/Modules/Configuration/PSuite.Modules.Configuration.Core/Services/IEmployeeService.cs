@@ -4,7 +4,7 @@ namespace PSuite.Modules.Configuration.Core.Services;
 
 internal interface IEmployeeService
 {
-    Task CreateAsync(EmployeeDto employee);
+    Task CreateAsync(CreateEmployeeDto employee);
     Task DeleteAsync(Guid id);
     Task UpdateAsync(EmployeeDto employee);
     Task<IEnumerable<EmployeeDto>> GetAllAsync();

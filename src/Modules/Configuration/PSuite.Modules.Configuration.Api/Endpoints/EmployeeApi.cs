@@ -16,7 +16,7 @@ internal static class EmployeeApi
             .WithMetadata()
             .RequireAuthorization();
 
-        employeeEndpoints.MapPost("", (IEmployeeService employeeService, EmployeeDto request) => employeeService.CreateAsync(request))
+        employeeEndpoints.MapPost("", (IEmployeeService employeeService, CreateEmployeeDto request) => employeeService.CreateAsync(request))
             .WithName("Create employee");
         
         employeeEndpoints.MapPut("/{id:guid}", (IEmployeeService employeeService, Guid id, EmployeeDto request) => employeeService.UpdateAsync(request))

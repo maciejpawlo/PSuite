@@ -5,6 +5,7 @@ using PSuite.Modules.Configuration.Core.Entities;
 using PSuite.Modules.Configuration.Core.Exceptions;
 using PSuite.Modules.Configuration.Core.Keycloak;
 using PSuite.Modules.Configuration.Core.Keycloak.Requests;
+using PSuite.Modules.Configuration.Core.Keycloak.Utils;
 using PSuite.Modules.Configuration.Core.Mappers;
 
 namespace PSuite.Modules.Configuration.Core.Services;
@@ -16,14 +17,17 @@ internal class EmployeeService(ConfigurationDbContext dbContext,
     private readonly ConfigurationDbContext dbContext = dbContext;
     private readonly IKeycloakService keycloakService = keycloakService;
 
-    public async Task CreateAsync(EmployeeDto dto)
+    public async Task CreateAsync(CreateEmployeeDto dto)
     {
         var hotel = dto.HotelId is not null ?
         await dbContext.Hotels.FirstOrDefaultAsync(x => x.Id == dto.HotelId!.Value) ?? throw new HotelNotFoundException(dto.HotelId!.Value)
         : 
         null;
+        
+        var keycloakUser = new KeycloakUserBuilder(Guid.Empty, dto.FirstName, dto.LastName, true)
+            .WithEmail(dto.Email)
+            .Build();
 
-        var keycloakUser = new KeycloakUser(Guid.Empty, dto.FirstName, dto.LastName, $"{dto.FirstName}_{dto.LastName}", string.Empty, true, false);
         var employee = new Employee 
         {
             FirstName = dto.FirstName,
@@ -36,6 +40,7 @@ internal class EmployeeService(ConfigurationDbContext dbContext,
         {
             Guid externalUserId = await keycloakService.CreateUser(keycloakUser);
             employee.UserId = externalUserId;
+            await keycloakService.SendExecuteActionsEmail(externalUserId, RequiredActions.UpdatePassword);
         }
         catch (Exception ex)
         {
@@ -88,9 +93,11 @@ internal class EmployeeService(ConfigurationDbContext dbContext,
             : 
             null;
         employee.Hotel = hotel;
-        var keycloakUser = new KeycloakUser(employee.UserId, dto.FirstName, dto.LastName, $"{dto.FirstName}_{dto.LastName}", string.Empty, true, false);
+        var keycloakUser = new KeycloakUserBuilder(employee.UserId, dto.FirstName, dto.LastName, true)
+            .Build();        
         try
         {
+            //IMPORTANT: username edition has to be enabled within realm settings
             await keycloakService.UpdateUser(keycloakUser);
         }
         catch (Exception ex)
