@@ -9,7 +9,6 @@ internal record class KeycloakUser(
     [property: JsonPropertyName("username")] string UserName,
     [property: JsonPropertyName("email")] string? Email,
     [property: JsonPropertyName("enabled")] bool Enabled,
-    [property: JsonPropertyName("emailVerified")] bool? EmailVerified,
     List<string> RequiredActions,
     Credentials? Credentials);
 
@@ -20,7 +19,6 @@ internal class KeycloakUserBuilder
     private readonly string _lastName;
     private readonly string _userName;
     private readonly bool _isEnalbled;
-    private readonly bool? _isEmailVerified;
     private string? _email;
     private List<string> _requiredActions = [];
     private Credentials? _credentials;
@@ -54,7 +52,7 @@ internal class KeycloakUserBuilder
 
     internal KeycloakUser Build() 
     {
-        return new KeycloakUser(_id, _firstName, _lastName, _userName, _email, _isEnalbled, _isEmailVerified, _requiredActions, _credentials);
+        return new KeycloakUser(_id, _firstName, _lastName, _userName, _email, _isEnalbled, _requiredActions, _credentials);
     }
 }
 
