@@ -3,14 +3,6 @@
         "module": {
             "name": "Configuration",
             "enabled": true
-        },
-        "postgres": {
-            "connectionstring": "Server=localhost; Port=5432; User Id=psuite; Password=secret123; Database=psuite"
-        },
-        "keycloak": { 
-            "clientSecret": "0dEfxjfEDgRJ4BmMAmLEEzaVvJC6DeMy",
-            "url": "http://localhost:8080/",
-            "realm": "PSuite"
         }
     }
 }
