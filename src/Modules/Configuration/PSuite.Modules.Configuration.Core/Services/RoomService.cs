@@ -37,6 +37,7 @@ internal sealed class RoomService(ConfigurationDbContext dbContext) : IRoomServi
     {
         return await dbContext.Rooms
             .AsNoTracking()
+            .Include(x => x.Hotel)
             .Select(x => x.ToDto())
             .ToListAsync();
     }

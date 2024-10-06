@@ -9,6 +9,7 @@ using PSuite.Shared.Infrastructure.Exceptions;
 using PSuite.Shared.Infrastructure.Modules;
 using Microsoft.OpenApi.Models;
 using PSuite.Shared.Infrastructure.Cache;
+using PSuite.Shared.Infrastructure.Validation;
 
 [assembly: InternalsVisibleTo("PSuite.Bootstrapper")]
 namespace PSuite.Shared.Infrastructure;
@@ -32,6 +33,7 @@ internal static class Extensions
         services.AddAuth(authOptions);
         services.AddCache();
         services.AddExceptions();
+        services.AddValidation(assemblies);
         return services;
     }
 
