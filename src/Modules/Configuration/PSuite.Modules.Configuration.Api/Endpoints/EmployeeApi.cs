@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using PSuite.Modules.Configuration.Core.DTO;
 using PSuite.Modules.Configuration.Core.Services;
+using PSuite.Shared.Infrastructure.Validation;
 
 namespace PSuite.Modules.Configuration.Api.Endpoints;
 
@@ -17,10 +18,12 @@ internal static class EmployeeApi
             .RequireAuthorization();
 
         employeeEndpoints.MapPost("", (IEmployeeService employeeService, CreateEmployeeDto request) => employeeService.CreateAsync(request))
-            .WithName("Create employee");
+            .WithName("Create employee")
+            .WithFluentValidation<CreateEmployeeDto>();
         
         employeeEndpoints.MapPut("/{id:guid}", (IEmployeeService employeeService, Guid id, EmployeeDto request) => employeeService.UpdateAsync(request))
-            .WithName("Update employee");
+            .WithName("Update employee")
+            .WithFluentValidation<EmployeeDto>();
 
         employeeEndpoints.MapDelete("/{id:guid}", (IEmployeeService employeeService, Guid id) => employeeService.DeleteAsync(id))
             .WithName("Delete employee");

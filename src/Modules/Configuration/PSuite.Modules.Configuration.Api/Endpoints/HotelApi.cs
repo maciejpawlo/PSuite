@@ -23,6 +23,7 @@ internal static class HotelApi
 
         hotelEndpoints.MapDelete("/{id:guid}", (IHotelService hotelService, Guid id) => hotelService.DeleteAsync(id))
             .WithName("Delete hotel");
+            
         hotelEndpoints.MapGet("", (IHotelService hotelService) => hotelService.GetAllAsync())
             .WithName("Get all hotels");
 

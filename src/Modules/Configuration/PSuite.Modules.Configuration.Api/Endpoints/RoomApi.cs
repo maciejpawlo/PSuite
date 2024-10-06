@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using PSuite.Modules.Configuration.Core.DTO;
 using PSuite.Modules.Configuration.Core.Services;
+using PSuite.Shared.Infrastructure.Validation;
 
 namespace PSuite.Modules.Configuration.Api.Endpoints;
 
@@ -18,10 +19,11 @@ internal static class RoomApi
 
         roomEndpoints.MapPost("", (IRoomService roomService, RoomDto request) => roomService.CreateAsync(request))
             .WithName("Create room")
-            .RequireAuthorization();
+            .WithFluentValidation<RoomDto>();
         
         roomEndpoints.MapPut("/{id:guid}", (IRoomService roomService, RoomDto request, Guid id) => roomService.UpdateAsync(request))
-            .WithName("Update room");
+            .WithName("Update room")
+            .WithFluentValidation<RoomDto>();
 
         roomEndpoints.MapDelete("/{id:guid}", (IRoomService roomService, Guid id) => roomService.DeleteAsync(id))
             .WithName("Delete room");
