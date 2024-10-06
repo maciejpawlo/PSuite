@@ -5,7 +5,6 @@ using PSuite.Modules.Configuration.Core.Entities;
 using PSuite.Modules.Configuration.Core.Exceptions;
 using PSuite.Modules.Configuration.Core.Keycloak;
 using PSuite.Modules.Configuration.Core.Keycloak.Requests;
-using PSuite.Modules.Configuration.Core.Keycloak.Utils;
 using PSuite.Modules.Configuration.Core.Mappers;
 
 namespace PSuite.Modules.Configuration.Core.Services;
