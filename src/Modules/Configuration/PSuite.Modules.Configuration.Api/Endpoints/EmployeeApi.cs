@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Builder;
+﻿using Keycloak.AuthServices.Authorization;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using PSuite.Modules.Configuration.Core.DTO;
@@ -14,24 +15,28 @@ internal static class EmployeeApi
         var employeeEndpoints = app.MapGroup($"{basePath}/employees")
             .WithTags("Employee")
             .WithOpenApi()
-            .WithMetadata()
-            .RequireAuthorization();
+            .WithMetadata();
 
         employeeEndpoints.MapPost("", (IEmployeeService employeeService, CreateEmployeeDto request) => employeeService.CreateAsync(request))
             .WithName("Create employee")
-            .WithFluentValidation<CreateEmployeeDto>();
+            .WithFluentValidation<CreateEmployeeDto>()
+            .RequireProtectedResource("configuration", "configuration:write");
         
         employeeEndpoints.MapPut("/{id:guid}", (IEmployeeService employeeService, Guid id, EmployeeDto request) => employeeService.UpdateAsync(request))
             .WithName("Update employee")
-            .WithFluentValidation<EmployeeDto>();
+            .WithFluentValidation<EmployeeDto>()
+            .RequireProtectedResource("configuration", "configuration:write");
 
         employeeEndpoints.MapDelete("/{id:guid}", (IEmployeeService employeeService, Guid id) => employeeService.DeleteAsync(id))
-            .WithName("Delete employee");
-
+            .WithName("Delete employee")
+            .RequireProtectedResource("configuration", "configuration:write");
+        
         employeeEndpoints.MapGet("", (IEmployeeService employeeService) => employeeService.GetAllAsync())
-            .WithName("Get all employee");
+            .WithName("Get all employee")
+            .RequireProtectedResource("configuration", "configuration:read");
 
         employeeEndpoints.MapGet("/{id:guid}", (IEmployeeService employeeService, Guid id) => employeeService.GetByIdAsync(id))
-            .WithName("Get employee by id");
+            .WithName("Get employee by id")
+            .RequireProtectedResource("configuration", "configuration:read");
     }
 }

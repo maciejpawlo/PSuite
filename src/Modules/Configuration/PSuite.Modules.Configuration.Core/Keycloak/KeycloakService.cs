@@ -1,7 +1,7 @@
 ﻿using System.Net.Http.Json;
-using System.Text.Json;
 using Microsoft.Extensions.Options;
 using Microsoft.Net.Http.Headers;
+using PSuite.Modules.Configuration.Core.Configuration;
 using PSuite.Modules.Configuration.Core.Keycloak.Requests;
 
 namespace PSuite.Modules.Configuration.Core.Keycloak;

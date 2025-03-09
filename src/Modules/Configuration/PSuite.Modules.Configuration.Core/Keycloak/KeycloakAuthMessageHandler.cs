@@ -1,11 +1,10 @@
 ﻿using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Text.Json;
-using System.Text.Json.Serialization;
 using Microsoft.Extensions.Caching.Distributed;
-using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Options;
 using Microsoft.Net.Http.Headers;
+using PSuite.Modules.Configuration.Core.Configuration;
 using PSuite.Modules.Configuration.Core.Keycloak.Responses;
 
 namespace PSuite.Modules.Configuration.Core.Keycloak;
