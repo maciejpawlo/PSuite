@@ -1,5 +1,7 @@
 ﻿using System.Runtime.CompilerServices;
+using Keycloak.AuthServices.Authorization;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.JsonWebTokens;
 
@@ -13,7 +15,10 @@ internal static class Extensions
         JsonWebTokenHandler.DefaultInboundClaimTypeMap.Clear();
 
         ArgumentNullException.ThrowIfNull(authOptions);
-
+        
+        using var serviceProvider = services.BuildServiceProvider();
+        var configuration = serviceProvider.GetRequiredService<IConfiguration>();
+        
         services
             .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             .AddJwtBearer(options =>
@@ -29,7 +34,12 @@ internal static class Extensions
                     ValidIssuers = authOptions.ValidIssuers,
                 };
             });
-        services.AddAuthorization();
+        
+        services
+            .AddAuthorization()
+            .AddKeycloakAuthorization()
+            .AddAuthorizationServer(configuration);
+
         return services;
     }
 }

@@ -6,6 +6,7 @@ using PSuite.Modules.Configuration.Core.Keycloak;
 using PSuite.Modules.Configuration.Core.Services;
 using PSuite.Shared.Infrastructure.Database;
 using Microsoft.Extensions.Options;
+using PSuite.Modules.Configuration.Core.Configuration;
 
 [assembly: InternalsVisibleTo("PSuite.Modules.Configuration.Api")]
 namespace PSuite.Modules.Configuration.Core;
@@ -16,11 +17,18 @@ internal static class Extensions
         using var serviceProvider = services.BuildServiceProvider();
         var configuration = serviceProvider.GetRequiredService<IConfiguration>();
         
-        services.Configure<KeycloakOptions>(configuration.GetSection(KeycloakOptions.SectionName));
-        services.AddTransient<KeycloakAuthMessageHandler>();
-        services.AddHttpClient<IKeycloakService, KeycloakService>((serviceProvider, client) =>
+        services.Configure<KeycloakOptions>(options =>
         {
-            var options = serviceProvider.GetRequiredService<IOptions<KeycloakOptions>>().Value;
+            var section = configuration.GetSection(KeycloakOptions.SectionName);
+            options.Url = section.GetValue<string>("auth-server-url")!;
+            options.ClientSecret = section.GetValue<string>("credentials:secret")!;
+            options.Realm = section.GetValue<string>(nameof(options.Realm))!;
+        });
+        
+        services.AddTransient<KeycloakAuthMessageHandler>();
+        services.AddHttpClient<IKeycloakService, KeycloakService>((sp, client) =>
+        {
+            var options = sp.GetRequiredService<IOptions<KeycloakOptions>>().Value;
             client.BaseAddress = new Uri(options.Url);
         })
         .AddHttpMessageHandler<KeycloakAuthMessageHandler>();

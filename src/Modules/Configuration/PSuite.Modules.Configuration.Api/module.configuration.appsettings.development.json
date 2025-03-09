@@ -3,11 +3,6 @@
         "module": {
             "name": "Configuration",
             "enabled": true
-        },
-        "keycloak": { 
-            "clientSecret": "0dEfxjfEDgRJ4BmMAmLEEzaVvJC6DeMy",
-            "url": "http://localhost:8080/",
-            "realm": "PSuite"
         }
     }
 }
