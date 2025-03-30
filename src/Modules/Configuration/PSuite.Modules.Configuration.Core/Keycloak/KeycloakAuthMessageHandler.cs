@@ -14,8 +14,6 @@ internal class KeycloakAuthMessageHandler(IOptions<KeycloakOptions> keycloakOpti
     IDistributedCache distributedCache) : DelegatingHandler
 {
     private readonly KeycloakOptions keycloakOptions = keycloakOptions.Value;
-    private readonly HttpClient httpClient = httpClient;
-    private readonly IDistributedCache distributedCache = distributedCache;
 
     private const string ACCESS_TOKEN_CACHE_KEY = "_keycloak_admin_access_token";
 
@@ -47,7 +45,7 @@ internal class KeycloakAuthMessageHandler(IOptions<KeycloakOptions> keycloakOpti
         var formData = new Dictionary<string, string>
         {
             { "grant_type", "client_credentials" },
-            { "client_id", "admin-cli"},
+            { "client_id", $"{keycloakOptions.Resource}"},
             { "client_secret", $"{keycloakOptions.ClientSecret}"}
         };
         var content = new FormUrlEncodedContent(formData);

@@ -8,4 +8,5 @@ internal class KeycloakOptions
     public required string Url { get; set; }
     public required string ClientSecret { get; set; }
     public required string Realm { get; set; }
+    public required string Resource { get; set; }
 }
