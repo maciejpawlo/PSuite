@@ -23,6 +23,7 @@ internal static class Extensions
             options.Url = section.GetValue<string>("auth-server-url")!;
             options.ClientSecret = section.GetValue<string>("credentials:secret")!;
             options.Realm = section.GetValue<string>(nameof(options.Realm))!;
+            options.Resource = section.GetValue<string>(nameof(options.Resource))!;
         });
         
         services.AddTransient<KeycloakAuthMessageHandler>();

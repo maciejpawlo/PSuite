@@ -18,17 +18,17 @@ internal class KeycloakUserBuilder
     private readonly string _firstName;
     private readonly string _lastName;
     private readonly string _userName;
-    private readonly bool _isEnalbled;
+    private bool _isEnalbled;
     private string? _email;
     private List<string> _requiredActions = [];
     private Credentials? _credentials;
 
-    internal KeycloakUserBuilder(Guid id, string firstName, string lastName, bool isEnalbled)
+    internal KeycloakUserBuilder(Guid id, string firstName, string lastName)
     {
         _id = id;
         _firstName = firstName;
         _lastName = lastName;
-        _isEnalbled = isEnalbled;
+        _isEnalbled = false;
         _userName = $"{firstName}_{lastName}";
     }
 
@@ -47,6 +47,12 @@ internal class KeycloakUserBuilder
     internal KeycloakUserBuilder WithEmail(string email)
     {
         _email = email;
+        return this;
+    }
+
+    internal KeycloakUserBuilder Enabled()
+    {
+        _isEnalbled = true;
         return this;
     }
 
@@ -71,4 +77,10 @@ internal class RequiredActions
 {
     public const string UpdatePassword = "UPDATE_PASSWORD";
     public const string UpdateEmail = "UPDATE_EMAIL";
+}
+
+internal class Roles
+{
+    public const string Employee = "employee";
+    public const string Manager = "manager";
 }

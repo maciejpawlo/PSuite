@@ -8,7 +8,6 @@ namespace PSuite.Modules.Configuration.Core.Keycloak;
 
 internal class KeycloakService(HttpClient httpClient, IOptions<KeycloakOptions> keycloakOptions) : IKeycloakService
 {
-    private readonly HttpClient httpClient = httpClient;
     private readonly KeycloakOptions keycloakOptions = keycloakOptions.Value;
 
     public async Task<Guid> CreateUser(KeycloakUser keycloakUser)
@@ -35,6 +34,16 @@ internal class KeycloakService(HttpClient httpClient, IOptions<KeycloakOptions> 
     public async Task SendExecuteActionsEmail(Guid userId, params string[] actions)
     {
         var result = await httpClient.PutAsJsonAsync($"admin/realms/{keycloakOptions.Realm}/users/{userId}/execute-actions-email", actions);
+        result.EnsureSuccessStatusCode();
+    }
+    
+    public async Task AssignRealmRoles(Guid userId, params string[] roles)
+    {
+        var keycloakRoles = await httpClient.GetFromJsonAsync<List<KeycloakRole>>($"admin/realms/{keycloakOptions.Realm}/roles");
+        var roleMappings = keycloakRoles!
+            .Where(x => roles.Contains(x.Name))
+            .Select(x => new KeycloakRole(x.Id, x.Name));
+        var result = await httpClient.PostAsJsonAsync($"admin/realms/{keycloakOptions.Realm}/users/{userId}/role-mappings/realm", roleMappings);
         result.EnsureSuccessStatusCode();
     }
 }

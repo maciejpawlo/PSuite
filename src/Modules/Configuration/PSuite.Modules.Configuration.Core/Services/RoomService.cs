@@ -13,22 +13,17 @@ internal sealed class RoomService(ConfigurationDbContext dbContext) : IRoomServi
 
     public async Task CreateAsync(RoomDto dto)
     {
-        var hotel = await dbContext.Hotels.FirstOrDefaultAsync(x => x.Id == dto.HotelId) ?? throw new HotelNotFoundException(dto.HotelId);
-        var room = new Room
-        {
-            Id = Guid.NewGuid(),
-            Capacity = dto.Capacity,
-            Hotel = hotel,
-            Number = dto.Number
-        };
-
-        await dbContext.Rooms.AddAsync(room);
+        var hotel = await dbContext.Hotels.FirstOrDefaultAsync(x => x.Id == dto.HotelId) 
+                    ?? throw new HotelNotFoundException(dto.HotelId);
+        var room = new Room(dto.Capacity, dto.Number, hotel);
+         dbContext.Rooms.Add(room);
         await dbContext.SaveChangesAsync();
     }
 
     public async Task DeleteAsync(Guid id)
     {
-        var room = await dbContext.Rooms.FirstOrDefaultAsync(x => x.Id == id) ?? throw new RoomNotFoundException(id);
+        var room = await dbContext.Rooms.FirstOrDefaultAsync(x => x.Id == id) 
+                   ?? throw new RoomNotFoundException(id);
         dbContext.Rooms.Remove(room);
         await dbContext.SaveChangesAsync();
     }
@@ -44,13 +39,15 @@ internal sealed class RoomService(ConfigurationDbContext dbContext) : IRoomServi
 
     public async Task<RoomDto> GetByIdAsync(Guid id)
     {
-        var room =  await dbContext.Rooms.FirstOrDefaultAsync(x => x.Id == id) ?? throw new RoomNotFoundException(id);
+        var room =  await dbContext.Rooms.FirstOrDefaultAsync(x => x.Id == id) 
+                    ?? throw new RoomNotFoundException(id);
         return room.ToDto();
     }
 
     public async Task UpdateAsync(RoomDto dto)
     {
-        var room = await dbContext.Rooms.FirstOrDefaultAsync(x => x.Id == dto.Id) ?? throw new RoomNotFoundException(dto.Id);
+        var room = await dbContext.Rooms.FirstOrDefaultAsync(x => x.Id == dto.Id) 
+                   ?? throw new RoomNotFoundException(dto.Id);
         room.Number = dto.Number;
         room.Capacity = dto.Capacity;        
         await dbContext.SaveChangesAsync();

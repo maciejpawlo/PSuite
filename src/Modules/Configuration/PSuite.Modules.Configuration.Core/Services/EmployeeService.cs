@@ -13,18 +13,13 @@ internal class EmployeeService(ConfigurationDbContext dbContext,
     IKeycloakService keycloakService
 ) : IEmployeeService
 {
-    private readonly ConfigurationDbContext dbContext = dbContext;
-    private readonly IKeycloakService keycloakService = keycloakService;
-
     public async Task CreateAsync(CreateEmployeeDto dto)
     {
-        var hotel = dto.HotelId is not null ?
-        await dbContext.Hotels.FirstOrDefaultAsync(x => x.Id == dto.HotelId!.Value) ?? throw new HotelNotFoundException(dto.HotelId!.Value)
-        : 
-        null;
+        var hotel = await GetHotelAsync(dto.HotelId);
         
-        var keycloakUser = new KeycloakUserBuilder(Guid.Empty, dto.FirstName, dto.LastName, true)
+        var keycloakUser = new KeycloakUserBuilder(Guid.Empty, dto.FirstName, dto.LastName)
             .WithEmail(dto.Email)
+            .Enabled()
             .Build();
 
         var employee = new Employee 
@@ -34,12 +29,16 @@ internal class EmployeeService(ConfigurationDbContext dbContext,
             Hotel = hotel
         };
 
-        await dbContext.Employees.AddAsync(employee);
+        dbContext.Employees.Add(employee);
         try
         {
-            Guid externalUserId = await keycloakService.CreateUser(keycloakUser);
+            var externalUserId = await keycloakService.CreateUser(keycloakUser);
             employee.UserId = externalUserId;
-            await keycloakService.SendExecuteActionsEmail(externalUserId, RequiredActions.UpdatePassword);
+            
+            var assignRolesTask = keycloakService.AssignRealmRoles(externalUserId, Roles.Employee);
+            var sendEmailTask = keycloakService.SendExecuteActionsEmail(externalUserId, RequiredActions.UpdatePassword);
+
+            await Task.WhenAll(assignRolesTask, sendEmailTask);
         }
         catch (Exception ex)
         {
@@ -50,7 +49,8 @@ internal class EmployeeService(ConfigurationDbContext dbContext,
 
     public async Task DeleteAsync(Guid id)
     {
-        var employee = await dbContext.Employees.FirstOrDefaultAsync(x => x.Id == id) ?? throw new EmployeeNotFoundException(id);
+        var employee = await dbContext.Employees.FirstOrDefaultAsync(x => x.Id == id) 
+                       ?? throw new EmployeeNotFoundException(id);
         
         dbContext.Employees.Remove(employee);
         try
@@ -85,14 +85,15 @@ internal class EmployeeService(ConfigurationDbContext dbContext,
     {
         var employee = await dbContext.Employees
             .FirstOrDefaultAsync(x => x.Id == dto.Id) ?? throw new EmployeeNotFoundException(dto.Id);
+
+        var hotel = await GetHotelAsync(dto.HotelId);
+        
         employee.FirstName = dto.FirstName;
         employee.LastName = dto.LastName;
-        var hotel = dto.HotelId is not null ?
-            await dbContext.Hotels.FirstOrDefaultAsync(x => x.Id == dto.HotelId) ?? throw new HotelNotFoundException(dto.HotelId!.Value)
-            : 
-            null;
         employee.Hotel = hotel;
-        var keycloakUser = new KeycloakUserBuilder(employee.UserId, dto.FirstName, dto.LastName, true)
+        
+        var keycloakUser = new KeycloakUserBuilder(employee.UserId, dto.FirstName, dto.LastName)
+            .Enabled()
             .Build();        
         try
         {
@@ -104,5 +105,14 @@ internal class EmployeeService(ConfigurationDbContext dbContext,
             throw new KeycloakIntegrationException(ex);
         }
         await dbContext.SaveChangesAsync();
+    }
+    
+    private async Task<Hotel?> GetHotelAsync(Guid? hotelId)
+    {
+        return hotelId is not null ?
+            await dbContext.Hotels.FirstOrDefaultAsync(x => x.Id == hotelId) 
+                ?? throw new HotelNotFoundException(hotelId.Value)
+            : 
+            null;
     }
 }
