@@ -10,9 +10,7 @@ internal class Room
     public required string Number { get; set; }
     public required Hotel Hotel { get; set; }
 
-    private Room()
-    {
-    }
+    private Room() { }
     
     [SetsRequiredMembers]
     public Room(int capacity, string number, Hotel hotel)
@@ -20,7 +18,7 @@ internal class Room
         if (capacity < 0)
             throw new InvalidRoomCapacityException();
         
-        Id = Guid.NewGuid();
+        Id = Guid.CreateVersion7();
         Capacity = capacity;
         Number = number;
         Hotel = hotel;

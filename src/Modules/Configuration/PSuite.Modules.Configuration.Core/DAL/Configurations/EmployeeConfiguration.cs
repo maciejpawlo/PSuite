@@ -8,6 +8,6 @@ internal class EmployeeConfiguration : IEntityTypeConfiguration<Employee>
 {
     public void Configure(EntityTypeBuilder<Employee> builder)
     {
-        
+        builder.Property(x => x.Id).ValueGeneratedNever();
     }
 }
