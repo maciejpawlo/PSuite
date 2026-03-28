@@ -4,6 +4,7 @@ using PSuite.Shared.Abstractions.Modules;
 using PSuite.Shared.Infrastructure.Configuration;
 using PSuite.Shared.Infrastructure;
 using PSuite.Shared.Infrastructure.Modules;
+using Scalar.AspNetCore;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -32,6 +33,12 @@ app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
 app.UseInfrastructure();
+
+if (app.Environment.IsDevelopment())
+{
+    app.MapOpenApi();
+    app.MapScalarApiReference();
+}
 
 app.MapGet("/", () => "PSuite API!");
 app.MapModuleInfo();

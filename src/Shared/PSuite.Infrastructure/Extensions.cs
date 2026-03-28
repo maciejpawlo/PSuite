@@ -1,13 +1,13 @@
-﻿using System.Reflection;
+using System.Reflection;
 using System.Runtime.CompilerServices;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.OpenApi;
 using PSuite.Shared.Abstractions.Modules;
 using PSuite.Shared.Infrastructure.Authentication;
 using PSuite.Shared.Infrastructure.Exceptions;
 using PSuite.Shared.Infrastructure.Modules;
-using Microsoft.OpenApi.Models;
 using PSuite.Shared.Infrastructure.Cache;
 using PSuite.Shared.Infrastructure.Validation;
 
@@ -19,15 +19,20 @@ internal static class Extensions
         IEnumerable<IModule> modules, IEnumerable<Assembly> assemblies)
     {
         services.AddEndpointsApiExplorer();
-        services.AddSwaggerGen(swagger =>
+        services.AddOpenApi(options =>
+        {
+            options.AddDocumentTransformer((document, context, cancellationToken) =>
             {
-                swagger.CustomSchemaIds(x => x.FullName);
-                swagger.SwaggerDoc("v1", new OpenApiInfo
+                document.Info = new OpenApiInfo
                 {
                     Title = "PSuite API",
-                    Version = "v1"
-                });
+                    Version = "v1",
+                    Description = "PSuite Modular Monolith API"
+                };
+                return Task.CompletedTask;
             });
+            options.AddDocumentTransformer<BearerSecuritySchemeTransformer>();
+        });
         services.AddModuleInfo(modules);
         var authOptions = services.GetOptions<AuthOptions>(AuthOptions.SectionName);
         services.AddAuth(authOptions);
@@ -39,8 +44,6 @@ internal static class Extensions
 
     internal static void UseInfrastructure(this IApplicationBuilder app)
     {
-        app.UseSwagger();
-        app.UseSwaggerUI();
         app.UseExceptions();
     }
 

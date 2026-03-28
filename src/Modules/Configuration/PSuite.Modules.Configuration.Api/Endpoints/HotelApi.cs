@@ -12,7 +12,6 @@ internal static class HotelApi
     {
         var hotelEndpoints = app.MapGroup($"{basePath}/hotels")
             .WithTags("Hotel")
-            .WithOpenApi()
             .WithMetadata();
 
         hotelEndpoints.MapPost("", (IHotelService hotelService, HotelDto request) => hotelService.CreateAsync(request))

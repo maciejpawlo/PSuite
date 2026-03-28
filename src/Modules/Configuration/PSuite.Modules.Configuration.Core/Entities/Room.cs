@@ -10,6 +10,10 @@ internal class Room
     public required string Number { get; set; }
     public required Hotel Hotel { get; set; }
 
+    private Room()
+    {
+    }
+    
     [SetsRequiredMembers]
     public Room(int capacity, string number, Hotel hotel)
     {
