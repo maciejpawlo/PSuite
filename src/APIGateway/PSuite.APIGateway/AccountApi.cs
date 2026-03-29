@@ -10,7 +10,6 @@ public static class AccountApi
     {
         var accountEndpoints = app.MapGroup("account")
             .WithTags("Account")
-            .WithOpenApi()
             .WithMetadata();
 
         accountEndpoints.MapGet("/public", () => "Welcome to API Gateway")

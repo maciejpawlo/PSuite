@@ -11,11 +11,7 @@ internal class HotelService(ConfigurationDbContext dbContext) : IHotelService
 {
     public async Task CreateAsync(HotelDto dto)
     {
-        var hotel = new Hotel
-        {
-            Id = dto.Id,
-            Name = dto.Name,
-        };
+        var hotel = new Hotel(dto.Name);
         dbContext.Hotels.Add(hotel);
         await dbContext.SaveChangesAsync();
     }

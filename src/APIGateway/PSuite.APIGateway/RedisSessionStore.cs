@@ -63,7 +63,7 @@ public class RedisSessionStore : ITicketStore
         
         var distributedCache = scope.ServiceProvider.GetService<IDistributedCache>()!;
         
-        var key = KeyPrefix + Guid.NewGuid();
+        var key = KeyPrefix + Guid.CreateVersion7();
 
         var serializedTicket = TicketSerializer.Default.Serialize(ticket);
         await distributedCache.SetAsync(key, serializedTicket, _cacheEntryOptions);

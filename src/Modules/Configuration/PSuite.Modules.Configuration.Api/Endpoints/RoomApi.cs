@@ -14,7 +14,6 @@ internal static class RoomApi
     {
         var roomEndpoints = app.MapGroup($"{basePath}/rooms")
             .WithTags("Room")
-            .WithOpenApi()
             .WithMetadata();
         
         roomEndpoints.MapPost("", (IRoomService roomService, RoomDto request) => roomService.CreateAsync(request))

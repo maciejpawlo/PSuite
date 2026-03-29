@@ -22,12 +22,7 @@ internal class EmployeeService(ConfigurationDbContext dbContext,
             .Enabled()
             .Build();
 
-        var employee = new Employee 
-        {
-            FirstName = dto.FirstName,
-            LastName = dto.LastName,
-            Hotel = hotel
-        };
+        var employee = new Employee(dto.FirstName, dto.LastName, hotel);
 
         dbContext.Employees.Add(employee);
         try

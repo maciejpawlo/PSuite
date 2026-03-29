@@ -8,6 +8,6 @@ internal class HotelConfiguration : IEntityTypeConfiguration<Hotel>
 {
     public void Configure(EntityTypeBuilder<Hotel> builder)
     {
-        
+        builder.Property(x => x.Id).ValueGeneratedNever();
     }
 }

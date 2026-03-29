@@ -14,7 +14,6 @@ internal static class EmployeeApi
     {
         var employeeEndpoints = app.MapGroup($"{basePath}/employees")
             .WithTags("Employee")
-            .WithOpenApi()
             .WithMetadata();
 
         employeeEndpoints.MapPost("", (IEmployeeService employeeService, CreateEmployeeDto request) => employeeService.CreateAsync(request))

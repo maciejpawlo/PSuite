@@ -8,6 +8,6 @@ internal class RoomConfiguration : IEntityTypeConfiguration<Room>
 {
     public void Configure(EntityTypeBuilder<Room> builder)
     {
-
+        builder.Property(x => x.Id).ValueGeneratedNever();
     }
 }
