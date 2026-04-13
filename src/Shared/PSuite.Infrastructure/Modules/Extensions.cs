@@ -3,6 +3,8 @@ using System.Runtime.CompilerServices;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
+using PSuite.Shared.Abstractions.Commands;
+using PSuite.Shared.Abstractions.Events;
 using PSuite.Shared.Abstractions.Modules;
 
 [assembly: InternalsVisibleTo("PSuite.Bootstrapper")]
@@ -26,7 +28,7 @@ internal static class Extensions
     internal static IServiceCollection AddModuleRequests(this IServiceCollection services, IList<Assembly> assemblies)
     {
         services.AddModuleRegistry(assemblies);
-        // services.AddSingleton<IModuleClient, ModuleClient>();
+        //services.AddSingleton<IModuleClient, ModuleClient>();
         //services.AddSingleton<IModuleSerializer, JsonModuleSerializer>();
         //services.AddSingleton<IModuleSubscriber, ModuleSubscriber>();
 
@@ -38,12 +40,39 @@ internal static class Extensions
         ModuleRegistry registry = new();
         var types = assemblies.SelectMany(assembly => assembly.GetTypes()).ToArray();
 
-        /*var eventTypes = types
-            .Where(x => x.IsClass && typeof(IEvent).IsAssignableFrom(x));
+        var commandTypes = types
+            .Where(t => typeof(ICommand).IsAssignableFrom(t))
+            .ToArray();
 
-        foreach (var eventType in eventTypes)
+        var eventTypes = types
+            .Where(t => typeof(IEvent).IsAssignableFrom(t))
+            .ToArray();
+        
+        services.AddSingleton<IModuleRegistry>(sp =>
         {
-            // registry.AddBroadcastAction(eventType, eventTy);
-        }*/
+            var commandDispatcher = sp.GetRequiredService<ICommandDispatcher>();
+            var commandDispatcherType = commandDispatcher.GetType();
+
+            foreach (var commandType in commandTypes)
+            {
+                registry.AddBroadcastAction(commandType, (command, token)
+                    => (Task)commandDispatcherType.GetMethod(nameof(commandDispatcher.SendAsync))!
+                        .MakeGenericMethod(commandType)
+                        .Invoke(commandDispatcher, [command, token])!);
+            }
+
+            var eventDispatcher = sp.GetRequiredService<IEventDispatcher>();
+            var eventDispatcherType = eventDispatcher.GetType();
+
+            foreach (var eventType in eventTypes)
+            {
+                registry.AddBroadcastAction(eventType, (@event, token)
+                    => (Task)eventDispatcherType.GetMethod(nameof(eventDispatcher.PublishAsync))!
+                        .MakeGenericMethod(eventType)
+                        .Invoke(eventDispatcher, [@event, token])!);
+            }
+            
+            return registry;
+        });
     }
 }

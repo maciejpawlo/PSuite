@@ -16,7 +16,9 @@ internal static class Extensions
                 .AddClasses(classes => classes.AssignableTo(typeof(ICommandHandler<,>)))
                     .AsImplementedInterfaces()
                     .WithScopedLifetime());
-        
+
+        services.AddScoped<ICommandDispatcher, CommandDispatcher>();
+
         return services;
     }
 }

@@ -13,7 +13,9 @@ internal static class Extensions
                 .AddClasses(classes => classes.AssignableTo(typeof(IQueryHandler<,>)))
                     .AsImplementedInterfaces()
                     .WithScopedLifetime());
-        
+
+        services.AddScoped<IQueryDispatcher, QueryDispatcher>();
+
         return services;
     }
 }
