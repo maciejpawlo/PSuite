@@ -39,6 +39,7 @@ internal static class Extensions
             options.AddDocumentTransformer<BearerSecuritySchemeTransformer>();
         });
         services.AddModuleInfo(modules);
+        services.AddModuleRequests(assemblyList);
         services.AddCommands(assemblyList);
         services.AddQueries(assemblyList);
         services.AddEvents(assemblyList);

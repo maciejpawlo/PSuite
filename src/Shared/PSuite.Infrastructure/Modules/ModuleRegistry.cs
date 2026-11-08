@@ -2,8 +2,8 @@ namespace PSuite.Shared.Infrastructure.Modules;
 
 public class ModuleRegistry : IModuleRegistry
 {
-    private readonly List<ModuleBroadcastRegistration> _broadcastRegistrations; // we can have multiple event handlers for one event (pub/sub)
-    private readonly Dictionary<string, ModuleRequestRegistration> _requestRegistrations; // only one handler per request (endpoint)
+    private readonly List<ModuleBroadcastRegistration> _broadcastRegistrations = []; // we can have multiple event handlers for one event (pub/sub)
+    private readonly Dictionary<string, ModuleRequestRegistration> _requestRegistrations = []; // only one handler per request (endpoint)
     
     public IEnumerable<ModuleBroadcastRegistration> GetBroadcastRegistrations(string key)
         => _broadcastRegistrations.Where(x => x.Key == key);

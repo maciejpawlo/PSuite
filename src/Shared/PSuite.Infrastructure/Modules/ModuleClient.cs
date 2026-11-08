@@ -16,7 +16,7 @@ internal sealed class ModuleClient(IModuleRegistry moduleRegistry, IModuleSerial
         
         var result = await requestRegistration.Action(TranslateType(request, requestRegistration.RequestType), cancellationToken);
         
-        return result is null ? null : TranslateType<TResult>(result);
+        return result is null ? null! : TranslateType<TResult>(result);
     }
 
     public Task PublishAsync(object message, CancellationToken cancellationToken = default)
