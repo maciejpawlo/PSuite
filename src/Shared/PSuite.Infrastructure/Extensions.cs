@@ -9,6 +9,7 @@ using PSuite.Shared.Infrastructure.Authentication;
 using PSuite.Shared.Infrastructure.Commands;
 using PSuite.Shared.Infrastructure.Events;
 using PSuite.Shared.Infrastructure.Exceptions;
+using PSuite.Shared.Infrastructure.Messaging;
 using PSuite.Shared.Infrastructure.Modules;
 using PSuite.Shared.Infrastructure.Cache;
 using PSuite.Shared.Infrastructure.Queries;
@@ -43,6 +44,7 @@ internal static class Extensions
         services.AddCommands(assemblyList);
         services.AddQueries(assemblyList);
         services.AddEvents(assemblyList);
+        services.AddMessaging();
         var authOptions = services.GetOptions<AuthOptions>(AuthOptions.SectionName);
         services.AddAuth(authOptions);
         services.AddCache();
