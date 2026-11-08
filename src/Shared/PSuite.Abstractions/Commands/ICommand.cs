@@ -4,4 +4,4 @@ namespace PSuite.Shared.Abstractions.Commands;
 
 public interface ICommand : IMessage;
 
-public interface ICommand<TResult> : ICommand;
+public interface ICommand<TResult> : IMessage;

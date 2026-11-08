@@ -10,14 +10,14 @@ internal static class Extensions
     {
         services.Scan(scan => scan
             .FromAssemblies(assemblies)
-                .AddClasses(classes => classes.AssignableTo(typeof(ICommandHandler<>)))
+                .AddClasses(classes => classes.AssignableTo(typeof(ICommandHandler<>)), publicOnly: false)
                     .AsImplementedInterfaces()
                     .WithScopedLifetime()
-                .AddClasses(classes => classes.AssignableTo(typeof(ICommandHandler<,>)))
+                .AddClasses(classes => classes.AssignableTo(typeof(ICommandHandler<,>)), publicOnly: false)
                     .AsImplementedInterfaces()
                     .WithScopedLifetime());
 
-        services.AddScoped<ICommandDispatcher, CommandDispatcher>();
+        services.AddSingleton<ICommandDispatcher, CommandDispatcher>();
 
         return services;
     }

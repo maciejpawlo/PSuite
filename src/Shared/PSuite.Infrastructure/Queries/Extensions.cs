@@ -10,11 +10,11 @@ internal static class Extensions
     {
         services.Scan(scan => scan
             .FromAssemblies(assemblies)
-                .AddClasses(classes => classes.AssignableTo(typeof(IQueryHandler<,>)))
+                .AddClasses(classes => classes.AssignableTo(typeof(IQueryHandler<,>)), publicOnly: false)
                     .AsImplementedInterfaces()
                     .WithScopedLifetime());
 
-        services.AddScoped<IQueryDispatcher, QueryDispatcher>();
+        services.AddSingleton<IQueryDispatcher, QueryDispatcher>();
 
         return services;
     }

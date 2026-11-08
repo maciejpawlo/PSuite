@@ -15,6 +15,7 @@ using PSuite.Shared.Infrastructure.Queries;
 using PSuite.Shared.Infrastructure.Validation;
 
 [assembly: InternalsVisibleTo("PSuite.Bootstrapper")]
+[assembly: InternalsVisibleTo("PSuite.Shared.Infrastructure.Tests")]
 namespace PSuite.Shared.Infrastructure;
 internal static class Extensions
 {
