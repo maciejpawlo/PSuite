@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging.Abstractions;
 using NSubstitute;
 using PSuite.Modules.Configuration.Core.Commands;
 using PSuite.Modules.Configuration.Core.Commands.Handlers;
@@ -19,7 +20,7 @@ public class HotelCommandHandlersTests : IDisposable
     public async Task given_create_should_persist_hotel_return_id_and_publish_event()
     {
         using var cts = new CancellationTokenSource();
-        var handler = new CreateHotelHandler(_dbContext, _broker);
+        var handler = new CreateHotelHandler(_dbContext, _broker, NullLogger<CreateHotelHandler>.Instance);
 
         var id = await handler.HandleAsync(new CreateHotel("Grand"), cts.Token);
 
@@ -29,13 +30,25 @@ public class HotelCommandHandlersTests : IDisposable
         hotel.Name.ShouldBe("Grand");
         await _broker.Received(1).PublishAsync(
             Arg.Is<IMessage>(message => message is HotelCreated && ((HotelCreated)message).Id == id),
-            CancellationToken.None);
+            Arg.Is<CancellationToken>(token => token != cts.Token && token.CanBeCanceled));
+    }
+
+    [Fact]
+    public async Task given_publish_that_never_completes_should_return_id_after_timeout()
+    {
+        _broker.PublishAsync(Arg.Any<IMessage>(), Arg.Any<CancellationToken>())
+            .Returns(call => Task.Delay(Timeout.Infinite, call.ArgAt<CancellationToken>(1)));
+        var handler = new CreateHotelHandler(_dbContext, _broker, NullLogger<CreateHotelHandler>.Instance);
+
+        var id = await handler.HandleAsync(new CreateHotel("Grand")).WaitAsync(TimeSpan.FromSeconds(15));
+
+        (await _dbContext.Hotels.SingleAsync()).Id.ShouldBe(id);
     }
 
     [Fact]
     public async Task given_save_failure_should_not_publish_event()
     {
-        var handler = new CreateHotelHandler(_dbContext, _broker);
+        var handler = new CreateHotelHandler(_dbContext, _broker, NullLogger<CreateHotelHandler>.Instance);
         await _dbContext.DisposeAsync();
 
         await Should.ThrowAsync<ObjectDisposedException>(() => handler.HandleAsync(new CreateHotel("Grand")));

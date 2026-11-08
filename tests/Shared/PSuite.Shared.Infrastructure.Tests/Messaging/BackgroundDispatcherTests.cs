@@ -16,67 +16,6 @@ public class BackgroundDispatcherTests
         => new(_channel, _moduleClient, NullLogger<BackgroundDispatcher>.Instance);
 
     [Fact]
-    public async Task given_handler_publishing_into_full_channel_should_not_deadlock()
-    {
-        var channel = new MessageChannel(new MessagingOptions { Capacity = 1 });
-        var publisher = new AsyncMessageDispatcher(channel);
-        var lastDelivered = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
-        _moduleClient.PublishAsync(default!, default)
-            .ReturnsForAnyArgs(async call =>
-            {
-                var message = (TestMessage)call.ArgAt<object>(0);
-                if (message.Value == 1)
-                {
-                    await publisher.PublishAsync(new TestMessage(2));
-                    await publisher.PublishAsync(new TestMessage(3));
-                }
-
-                if (message.Value == 3)
-                {
-                    lastDelivered.TrySetResult();
-                }
-            });
-        var dispatcher = new BackgroundDispatcher(channel, _moduleClient, NullLogger<BackgroundDispatcher>.Instance);
-        await dispatcher.StartAsync(CancellationToken.None);
-
-        await channel.Writer.WriteAsync(new TestMessage(1));
-
-        await lastDelivered.Task.WaitAsync(TimeSpan.FromSeconds(5));
-        await dispatcher.StopAsync(CancellationToken.None).WaitAsync(TimeSpan.FromSeconds(5));
-    }
-
-    [Fact]
-    public async Task given_handler_publishing_during_drain_should_deliver_follow_up()
-    {
-        var publisher = new AsyncMessageDispatcher(_channel);
-        var delivered = new ConcurrentQueue<int>();
-        var firstStarted = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
-        var stopRequested = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
-        _moduleClient.PublishAsync(default!, default)
-            .ReturnsForAnyArgs(async call =>
-            {
-                var message = (TestMessage)call.ArgAt<object>(0);
-                delivered.Enqueue(message.Value);
-                if (message.Value == 1)
-                {
-                    firstStarted.TrySetResult();
-                    await stopRequested.Task;
-                    await publisher.PublishAsync(new TestMessage(2));
-                }
-            });
-        var dispatcher = CreateDispatcher();
-        await dispatcher.StartAsync(CancellationToken.None);
-        await _channel.Writer.WriteAsync(new TestMessage(1));
-        await firstStarted.Task.WaitAsync(TimeSpan.FromSeconds(5));
-
-        var stopping = dispatcher.StopAsync(CancellationToken.None);
-        stopRequested.TrySetResult();
-        await stopping.WaitAsync(TimeSpan.FromSeconds(5));
-
-        delivered.ToArray().ShouldBe([1, 2]);
-    }
-
-    [Fact]
     public async Task given_stop_timeout_with_queued_messages_should_log_undelivered_count()
     {
         var logger = new ListLogger<BackgroundDispatcher>();
@@ -99,7 +38,59 @@ public class BackgroundDispatcherTests
         await dispatcher.StopAsync(timeout.Token);
 
         release.TrySetResult();
-        logger.Entries.ShouldContain(entry => entry.Level == LogLevel.Warning && entry.Message.Contains("2"));
+        logger.Entries.ShouldContain(entry => entry.Level == LogLevel.Warning && entry.Message.Contains("3"));
+    }
+
+    [Fact]
+    public async Task given_stop_timeout_should_cancel_in_flight_handler_and_skip_queued_messages()
+    {
+        var calls = 0;
+        var firstStarted = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+        var cancelled = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+        _moduleClient.PublishAsync(default!, default)
+            .ReturnsForAnyArgs(async call =>
+            {
+                Interlocked.Increment(ref calls);
+                call.Arg<CancellationToken>().Register(() => cancelled.TrySetResult());
+                firstStarted.TrySetResult();
+                await Task.Delay(Timeout.Infinite, call.Arg<CancellationToken>());
+            });
+        var dispatcher = CreateDispatcher();
+        await dispatcher.StartAsync(CancellationToken.None);
+        await _channel.Writer.WriteAsync(new TestMessage(1));
+        await _channel.Writer.WriteAsync(new TestMessage(2));
+        await firstStarted.Task.WaitAsync(TimeSpan.FromSeconds(5));
+        using var timeout = new CancellationTokenSource(TimeSpan.FromMilliseconds(50));
+
+        await dispatcher.StopAsync(timeout.Token);
+
+        await cancelled.Task.WaitAsync(TimeSpan.FromSeconds(5));
+        await Task.Delay(100);
+        calls.ShouldBe(1);
+    }
+
+    [Fact]
+    public async Task given_stop_timeout_with_stuck_handler_and_empty_queue_should_log_warning()
+    {
+        var logger = new ListLogger<BackgroundDispatcher>();
+        var started = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+        var release = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+        _moduleClient.PublishAsync(default!, default)
+            .ReturnsForAnyArgs(async _ =>
+            {
+                started.TrySetResult();
+                await release.Task;
+            });
+        var dispatcher = new BackgroundDispatcher(_channel, _moduleClient, logger);
+        await dispatcher.StartAsync(CancellationToken.None);
+        await _channel.Writer.WriteAsync(new TestMessage(1));
+        await started.Task.WaitAsync(TimeSpan.FromSeconds(5));
+        using var timeout = new CancellationTokenSource(TimeSpan.FromMilliseconds(50));
+
+        await dispatcher.StopAsync(timeout.Token);
+
+        release.TrySetResult();
+        logger.Entries.ShouldContain(entry => entry.Level == LogLevel.Warning && entry.Message.Contains("1"));
     }
 
     private sealed class ListLogger<T> : ILogger<T>

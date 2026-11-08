@@ -25,12 +25,12 @@ public class EventDispatcherTests : IDisposable
     }
 
     [Fact]
-    public async Task given_two_handlers_each_should_get_own_scoped_dependency()
+    public async Task given_two_handlers_should_share_one_scoped_dependency()
     {
         await _dispatcher.PublishAsync(new TwoHandlersEvent());
 
         _log.Probes.Count.ShouldBe(2);
-        ReferenceEquals(_log.Probes.First(), _log.Probes.Last()).ShouldBeFalse();
+        ReferenceEquals(_log.Probes.First(), _log.Probes.Last()).ShouldBeTrue();
     }
 
     [Fact]

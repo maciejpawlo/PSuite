@@ -1,4 +1,3 @@
-using System.Collections.Concurrent;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using PSuite.Shared.Abstractions.Messaging;
@@ -11,21 +10,20 @@ internal sealed class BackgroundDispatcher(
     IModuleClient moduleClient,
     ILogger<BackgroundDispatcher> logger) : BackgroundService
 {
-    private readonly ConcurrentQueue<IMessage> _followUps = new();
+    private readonly CancellationTokenSource _shutdownTimedOut = new();
+    private volatile int _inFlight;
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        DispatchContext.FollowUps = _followUps;
-
         // Not bound to stoppingToken: on shutdown the writer is completed and the queue drains to the end.
         await foreach (var message in messageChannel.Reader.ReadAllAsync(CancellationToken.None))
         {
-            await DispatchAsync(message);
-
-            while (_followUps.TryDequeue(out var followUp))
+            if (_shutdownTimedOut.IsCancellationRequested)
             {
-                await DispatchAsync(followUp);
+                break;
             }
+
+            await DispatchAsync(message);
         }
     }
 
@@ -34,22 +32,34 @@ internal sealed class BackgroundDispatcher(
         messageChannel.Writer.TryComplete();
         await base.StopAsync(cancellationToken);
 
-        var undelivered = messageChannel.Reader.Count + _followUps.Count;
-        if (cancellationToken.IsCancellationRequested && undelivered > 0)
+        if (!cancellationToken.IsCancellationRequested)
         {
-            logger.LogWarning("Shutdown timed out with {UndeliveredCount} queued messages not delivered.", undelivered);
+            return;
+        }
+
+        var undelivered = messageChannel.Reader.Count + _inFlight;
+        await _shutdownTimedOut.CancelAsync();
+
+        if (undelivered > 0)
+        {
+            logger.LogWarning("Shutdown timed out with {UndeliveredCount} messages not delivered.", undelivered);
         }
     }
 
     private async Task DispatchAsync(IMessage message)
     {
+        _inFlight = 1;
         try
         {
-            await moduleClient.PublishAsync(message, CancellationToken.None);
+            await moduleClient.PublishAsync(message, _shutdownTimedOut.Token);
         }
         catch (Exception exception)
         {
             logger.LogError(exception, "Failed to dispatch message {MessageType}.", message.GetType().Name);
+        }
+        finally
+        {
+            _inFlight = 0;
         }
     }
 }

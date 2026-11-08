@@ -8,18 +8,10 @@ internal sealed class EventDispatcher(IServiceProvider serviceProvider) : IEvent
     public async Task PublishAsync<TEvent>(TEvent @event, CancellationToken cancellationToken = default)
         where TEvent : class, IEvent
     {
-        int count;
-        await using (var probe = serviceProvider.CreateAsyncScope())
-        {
-            count = probe.ServiceProvider.GetServices<IEventHandler<TEvent>>().Count();
-        }
+        await using var scope = serviceProvider.CreateAsyncScope();
+        var handlers = scope.ServiceProvider.GetServices<IEventHandler<TEvent>>();
 
-        // Each handler gets its own scope, so handlers running concurrently never share a DbContext.
-        await Task.WhenAll(Enumerable.Range(0, count).Select(async index =>
-        {
-            await using var scope = serviceProvider.CreateAsyncScope();
-            var handler = scope.ServiceProvider.GetServices<IEventHandler<TEvent>>().ElementAt(index);
-            await handler.HandleAsync(@event, cancellationToken);
-        }));
+        // Async lambda: a handler throwing synchronously must not stop the remaining handlers from running.
+        await Task.WhenAll(handlers.Select(async handler => await handler.HandleAsync(@event, cancellationToken)));
     }
 }
