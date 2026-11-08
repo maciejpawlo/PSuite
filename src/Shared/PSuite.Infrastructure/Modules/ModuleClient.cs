@@ -27,11 +27,11 @@ internal sealed class ModuleClient(IModuleRegistry moduleRegistry, IModuleSerial
             .Where(x => x.ReceiverType != messageType);
 
         var tasks = broadcastRegistration
-            .Select(x =>
+            .Select(async x =>
             {
-                var action = x.Action;
+                // Inside the async lambda, so one receiver's translation failure stays in its own task.
                 var receiverMessage = TranslateType(message, x.ReceiverType);
-                return action(receiverMessage, cancellationToken);
+                await x.Action(receiverMessage, cancellationToken);
             })
             .ToArray();
         

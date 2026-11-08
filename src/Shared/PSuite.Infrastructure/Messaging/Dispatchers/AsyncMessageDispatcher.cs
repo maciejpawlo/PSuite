@@ -6,5 +6,13 @@ internal sealed class AsyncMessageDispatcher(IMessageChannel messageChannel) : I
 {
     public async Task PublishAsync<TMessage>(TMessage message, CancellationToken cancellationToken = default)
         where TMessage : class, IMessage
-        => await messageChannel.Writer.WriteAsync(message, cancellationToken);
+    {
+        if (DispatchContext.FollowUps is { } followUps)
+        {
+            followUps.Enqueue(message);
+            return;
+        }
+
+        await messageChannel.Writer.WriteAsync(message, cancellationToken);
+    }
 }
