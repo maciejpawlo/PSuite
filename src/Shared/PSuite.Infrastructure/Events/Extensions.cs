@@ -10,11 +10,11 @@ internal static class Extensions
     {
         services.Scan(scan => scan
             .FromAssemblies(assemblies)
-                .AddClasses(classes => classes.AssignableTo(typeof(IEventHandler<>)))
+                .AddClasses(classes => classes.AssignableTo(typeof(IEventHandler<>)), publicOnly: false)
                     .AsImplementedInterfaces()
                     .WithScopedLifetime());
 
-        services.AddScoped<IEventDispatcher, EventDispatcher>();
+        services.AddSingleton<IEventDispatcher, EventDispatcher>();
 
         return services;
     }
