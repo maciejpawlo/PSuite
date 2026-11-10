@@ -58,18 +58,21 @@ public class MessageBrokerTests
     }
 
     [Fact]
-    public async Task given_full_channel_publish_should_honour_cancellation()
+    public async Task given_background_enabled_publishes_should_not_wait_for_the_reader()
     {
-        var (broker, _) = CreateBroker(new MessagingOptions { UseBackgroundDispatcher = true, Capacity = 1 });
-        await broker.PublishAsync(_message);
-        using var cts = new CancellationTokenSource(TimeSpan.FromMilliseconds(50));
+        var (broker, channel) = CreateBroker(new MessagingOptions { UseBackgroundDispatcher = true });
 
-        await Should.ThrowAsync<OperationCanceledException>(() => broker.PublishAsync(new TestMessage(2), cts.Token));
+        for (var i = 0; i < 2000; i++)
+        {
+            await broker.PublishAsync(new TestMessage(i)).WaitAsync(TimeSpan.FromSeconds(5));
+        }
+
+        channel.Reader.Count.ShouldBe(2000);
     }
 
     private (MessageBroker Broker, MessageChannel Channel) CreateBroker(MessagingOptions options)
     {
-        var channel = new MessageChannel(options);
+        var channel = new MessageChannel();
         return (new MessageBroker(_moduleClient, new AsyncMessageDispatcher(channel), options), channel);
     }
 }

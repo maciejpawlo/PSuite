@@ -10,7 +10,7 @@ namespace PSuite.Shared.Infrastructure.Tests.Messaging;
 public class BackgroundDispatcherTests
 {
     private readonly IModuleClient _moduleClient = Substitute.For<IModuleClient>();
-    private readonly MessageChannel _channel = new(new MessagingOptions());
+    private readonly MessageChannel _channel = new();
 
     private BackgroundDispatcher CreateDispatcher()
         => new(_channel, _moduleClient, NullLogger<BackgroundDispatcher>.Instance);

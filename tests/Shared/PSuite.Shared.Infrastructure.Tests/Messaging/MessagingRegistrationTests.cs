@@ -39,17 +39,6 @@ namespace PSuite.Shared.Infrastructure.Tests.Messaging
         }
 
         [Fact]
-        public void given_capacity_in_config_should_bind_it()
-        {
-            var services = AddConfiguration(new ServiceCollection(), new() { ["messaging:capacity"] = "5" });
-
-            services.AddMessaging();
-
-            using var provider = services.BuildServiceProvider();
-            provider.GetRequiredService<MessagingOptions>().Capacity.ShouldBe(5);
-        }
-
-        [Fact]
         public async Task published_event_should_reach_other_module_handler_through_channel()
         {
             var delivery = new DeliveryProbe();
