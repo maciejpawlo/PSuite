@@ -9,6 +9,7 @@ using Microsoft.Extensions.Options;
 using PSuite.Modules.Configuration.Core.Configuration;
 
 [assembly: InternalsVisibleTo("PSuite.Modules.Configuration.Api")]
+[assembly: InternalsVisibleTo("PSuite.Modules.Configuration.Tests")]
 namespace PSuite.Modules.Configuration.Core;
 internal static class Extensions
 {
@@ -35,7 +36,6 @@ internal static class Extensions
         .AddHttpMessageHandler<KeycloakAuthMessageHandler>();
 
         services.AddPostgres<ConfigurationDbContext>();
-        services.AddScoped<IHotelService, HotelService>();
         services.AddScoped<IRoomService, RoomService>();
         services.AddScoped<IEmployeeService, EmployeeService>();
 

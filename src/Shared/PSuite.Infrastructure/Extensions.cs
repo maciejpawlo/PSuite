@@ -6,18 +6,24 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.OpenApi;
 using PSuite.Shared.Abstractions.Modules;
 using PSuite.Shared.Infrastructure.Authentication;
+using PSuite.Shared.Infrastructure.Commands;
+using PSuite.Shared.Infrastructure.Events;
 using PSuite.Shared.Infrastructure.Exceptions;
+using PSuite.Shared.Infrastructure.Messaging;
 using PSuite.Shared.Infrastructure.Modules;
 using PSuite.Shared.Infrastructure.Cache;
+using PSuite.Shared.Infrastructure.Queries;
 using PSuite.Shared.Infrastructure.Validation;
 
 [assembly: InternalsVisibleTo("PSuite.Bootstrapper")]
+[assembly: InternalsVisibleTo("PSuite.Shared.Infrastructure.Tests")]
 namespace PSuite.Shared.Infrastructure;
 internal static class Extensions
 {
     internal static IServiceCollection AddInfrastructure(this IServiceCollection services, 
         IEnumerable<IModule> modules, IEnumerable<Assembly> assemblies)
     {
+        var assemblyList = assemblies.ToList();
         services.AddEndpointsApiExplorer();
         services.AddOpenApi(options =>
         {
@@ -34,6 +40,11 @@ internal static class Extensions
             options.AddDocumentTransformer<BearerSecuritySchemeTransformer>();
         });
         services.AddModuleInfo(modules);
+        services.AddModuleRequests(assemblyList);
+        services.AddCommands(assemblyList);
+        services.AddQueries(assemblyList);
+        services.AddEvents(assemblyList);
+        services.AddMessaging();
         var authOptions = services.GetOptions<AuthOptions>(AuthOptions.SectionName);
         services.AddAuth(authOptions);
         services.AddCache();
