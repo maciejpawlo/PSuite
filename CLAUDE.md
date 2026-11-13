@@ -4,6 +4,15 @@ System do zarządzania hotelem zbudowany jako **modularny monolit** na .NET 10 (
 
 > **Każdy moduł ma własny `CLAUDE.md`** w katalogu `src/Modules/<Moduł>/CLAUDE.md`. Przed pracą w module przeczytaj go. Ten plik opisuje tylko rzeczy wspólne dla całego repozytorium.
 
+## Model domeny
+
+Model domeny (wynik Event Stormingu, wszystkie konteksty i decyzje zespołu) jest w `docs/domain.md`. Czytaj odpowiednią sekcję przed pracą nad logiką biznesową.
+
+- `[Decyzja]` i `[Tablica]` są wiążące (pierwszeństwo: Decyzja > Tablica > Wniosek). `[Wniosek]` wymaga potwierdzenia. `[Otwarte]` i `[Hot spot]` — nie implementuj, zapytaj.
+- Dla modułów zrealizowanych źródłem prawdy jest kod; rozbieżność oznacza aktualizację dokumentu, nie kodu.
+- Projekt to PoC — wybieraj najprostsze rozwiązanie spełniające decyzje; nie implementuj niczego spoza zakresu PoC.
+- Nowe decyzje zespołu dopisuj do `docs/domain.md` zgodnie z jego sekcją „Jak używać tego dokumentu z agentem”.
+
 ## Komendy
 
 ```bash
@@ -45,6 +54,7 @@ tests/
   Shared/PSuite.Shared.Infrastructure.Tests
   Modules/<Moduł>/PSuite.Modules.<Moduł>.Tests
 docker/                              # docker-compose dla postgres, keycloak, redis
+docs/domain.md                       # model domeny (Event Storming, decyzje zespołu)
 docs/superpowers/plans/              # plany implementacji (po polsku)
 ```
 
