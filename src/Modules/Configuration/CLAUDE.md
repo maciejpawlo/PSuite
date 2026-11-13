@@ -26,9 +26,3 @@ Konfiguracja struktury hotelu: hotele, pokoje i pracownicy (z kontami w Keycloak
 ## Testy
 
 Tylko jednostkowe (integracyjne — TODO). Helper `TestDb.Create()` jest w `Hotels/HotelCommandHandlersTests.cs`; `IKeycloakService` mockuj przez NSubstitute.
-
-## Znane problemy (nie naprawiaj przy okazji bez uzgodnienia)
-
-- `PUT /{id}` ignoruje `id` z trasy i używa `Id` z body.
-- Operacje na pracownikach nie są atomowe między Keycloak a bazą (możliwe osierocone konta).
-- `RoomService.GetByIdAsync` nie robi `Include(x => x.Hotel)`, a `ToDto()` czyta `room.Hotel.Id` — możliwy `NullReferenceException`.
